@@ -569,6 +569,20 @@ sub wait_boot {
 
             assert_screen 'displaymanager-password-prompt', no_wait => 1;
             type_password $password. "\n";
+            # Sometimes the screen back to displaymanager, so we try to retype password, see poo#45236
+            my $count = 0;
+            while ($count < 3) {
+                if (check_screen('displaymanager', 5) && check_var('DESKTOP', 'gnome')) {
+                    # In GNOME/gdm, we do not have to enter a username, but we have to select it
+                    if (is_tumbleweed) {
+                        send_key 'tab';
+                    }
+                    send_key 'ret';
+                    assert_screen 'displaymanager-password-prompt', no_wait => 1;
+                    type_password $password. "\n";
+                }
+                $count++;
+            }
         }
         else {
             mouse_hide(1);
