@@ -64,7 +64,7 @@ sub run {
         assert_screen('installation-settings-overview-loaded-impossible-proposal');
     }
     else {
-        assert_screen "installation-settings-overview-loaded", 150;
+        assert_screen "installation-settings-overview-loaded", 300;
         $self->deal_with_dependency_issues;
         assert_screen "inst-xen-pattern" if get_var('XEN');
         ensure_ssh_unblocked;
