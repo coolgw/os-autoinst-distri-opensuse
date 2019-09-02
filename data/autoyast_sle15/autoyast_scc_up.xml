@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE profile>
 <profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+  <add-on>
+    <add_on_products config:type="list">
+      <listentry>
+        <media_url>
+            http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Basesystem-GM/s390x/DVD1/
+        </media_url>
+        <product>sle-module-basesystem</product>
+        <product_dir>/Module-Basesystem</product_dir>
+      </listentry>
+      <listentry>
+        <media_url>
+            http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Desktop-Applications-GM/s390x/DVD1/
+        </media_url>
+        <product>sle-module-desktop-applications</product>
+        <product_dir>/Module-Desktop-Applications</product_dir>
+      </listentry>
+      <listentry>
+        <media_url>
+            http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Server-Applications-GM/s390x/DVD1/
+        </media_url>
+        <product>sle-module-server-applications</product>
+        <product_dir>/Module-Server-Applications</product_dir>
+      </listentry>
+      <listentry>
+        <media_url>
+            http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Legacy-GM/s390x/DVD1/
+        </media_url>
+        <media_url><![CDATA[dvd:///?devices=/dev/sr1]]></media_url>
+        <product>sle-module-legacy</product>
+        <product_dir>/Module-Legacy</product_dir>
+      </listentry>
+    </add_on_products>
+  </add-on>
   <bootloader>
     <global>
       <activate>false</activate>
@@ -10,7 +43,7 @@
       <generic_mbr>false</generic_mbr>
       <timeout config:type="integer">5</timeout>
     </global>
-    <loader_type>{{LOADER_TYPE}}</loader_type>
+    <loader_type>grub2</loader_type>
   </bootloader>
   <general>
     <mode>
@@ -61,10 +94,7 @@
     </products>
   </software>
   <upgrade>
+    <only_installed_packages config:type="boolean">false</only_installed_packages>
     <stop_on_solver_conflict config:type="boolean">true</stop_on_solver_conflict>
   </upgrade>
-  <suse_register>
-    <do_registration config:type="boolean">true</do_registration>
-    <reg_server>{{SCC_URL}}</reg_server>
-  </suse_register>
 </profile>
