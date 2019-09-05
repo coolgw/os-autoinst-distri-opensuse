@@ -50,6 +50,7 @@ sub patching_sle {
         zypper_call('lr -d');
     }
 
+
     # add test repositories and logs the required patches
     add_test_repositories();
 
@@ -58,6 +59,7 @@ sub patching_sle {
         minimal_patch_system();
     }
     else {
+
         fully_patch_system();
         # Update origin system on zVM that is controlled by autoyast profile and reboot is done by end of autoyast installation
         # So we skip reboot here after fully patched on zVM to reduce times of reconnection to s390x

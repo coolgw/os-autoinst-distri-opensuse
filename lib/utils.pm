@@ -594,6 +594,16 @@ the second run will update the system.
 
 =cut
 sub fully_patch_system {
+        script_run('zypper ar http://download.suse.de/ibs/Devel:/zypp:/SLE12SP2/SUSE_SLE-12-SP2_Update_standard/ zypperup');
+        script_run("zypper dup --allow-vendor-change -r zypperup | tee /dev/$serialdev", 0);
+        my $zypper_dup_continue      = qr/trust always/;
+        my $out = wait_serial([$zypper_dup_continue], 240);
+        send_key 't';
+        send_key 'ret';
+        my $out = wait_serial(["Continue"], 240);
+        send_key 'y';
+        send_key 'ret';
+        script_run("zypper --version");
     # first run, possible update of packager -- exit code 103
     zypper_call('patch --with-interactive -l', exitcode => [0, 102, 103], timeout => 3000);
     # second run, full system update
@@ -610,6 +620,16 @@ the second run will update the system.
 
 =cut
 sub ssh_fully_patch_system {
+        script_run('zypper ar http://download.suse.de/ibs/Devel:/zypp:/SLE12SP2/SUSE_SLE-12-SP2_Update_standard/ zypperup');
+        script_run("zypper dup --allow-vendor-change -r zypperup | tee /dev/$serialdev", 0);
+        my $zypper_dup_continue      = qr/trust always/;
+        my $out = wait_serial([$zypper_dup_continue], 240);
+        send_key 't';
+        send_key 'ret';
+        my $out = wait_serial(["Continue"], 240);
+        send_key 'y';
+        send_key 'ret';
+        script_run("zypper --version");
     my $host = shift;
     # first run, possible update of packager -- exit code 103
     my $ret = script_run("ssh root\@$host 'zypper -n patch --with-interactive -l'", 1500);
