@@ -5,32 +5,31 @@
     <add_on_products config:type="list">
       <listentry>
         <media_url>
-            http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Basesystem-GM/s390x/DVD1/
+            <![CDATA[http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Basesystem-GM/s390x/DVD1/]]>
         </media_url>
         <product>sle-module-basesystem</product>
-        <product_dir>/Module-Basesystem</product_dir>
+        <product_dir>/</product_dir>
       </listentry>
       <listentry>
         <media_url>
-            http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Desktop-Applications-GM/s390x/DVD1/
+            <![CDATA[http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Desktop-Applications-GM/s390x/DVD1/]]>
         </media_url>
         <product>sle-module-desktop-applications</product>
-        <product_dir>/Module-Desktop-Applications</product_dir>
+        <product_dir>/</product_dir>
       </listentry>
       <listentry>
         <media_url>
-            http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Server-Applications-GM/s390x/DVD1/
+            <![CDATA[http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Server-Applications-GM/s390x/DVD1/]]>
         </media_url>
         <product>sle-module-server-applications</product>
-        <product_dir>/Module-Server-Applications</product_dir>
+        <product_dir>/</product_dir>
       </listentry>
       <listentry>
         <media_url>
-            http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Legacy-GM/s390x/DVD1/
+            <![CDATA[http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Legacy-GM/s390x/DVD1/]]>
         </media_url>
-        <media_url><![CDATA[dvd:///?devices=/dev/sr1]]></media_url>
         <product>sle-module-legacy</product>
-        <product_dir>/Module-Legacy</product_dir>
+        <product_dir>/</product_dir>
       </listentry>
     </add_on_products>
   </add-on>
