@@ -249,6 +249,7 @@ sub post_fail_hook {
     my ($self) = @_;
     select_console 'log-console';
     $self->save_and_upload_log('journalctl -b', '/tmp/journal.log', {screenshot => 1});
+    $self->save_and_upload_log('save_y2logs /tmp/y2logs.tar.bz2', '/tmp/y2logs.tar.bz2', {screenshot => 1});
     $self->export_logs_desktop;
     $self->SUPER::post_fail_hook;
 }
