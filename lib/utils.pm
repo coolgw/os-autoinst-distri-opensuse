@@ -1304,6 +1304,7 @@ sub reconnect_mgmt_console {
             }
         }
 
+        sleep 7600;
         if (!check_var('DESKTOP', 'textmode')) {
             select_console('x11', await_console => 0);
         }
