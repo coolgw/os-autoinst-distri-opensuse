@@ -505,6 +505,33 @@ sub zypper_call {
             if (script_run('grep "Error code.*502" /var/log/zypper.log') == 0) {
                 record_soft_failure 'Retrying because of error 502 - bsc#1070851';
             }
+            #############hack
+            script_run("(zypper patch;echo ZYPPER-DONE) | tee /dev/$serialdev", 0);
+            my $timeout_hack = 6000;
+            my $zypper_continue               = qr/^Continue\? \[y/m;
+            my $zypper_migration_done         = qr/^Executing.*after online migration|^ZYPPER-DONE/m;
+            my $zypper_migration_conflict     = qr/^Choose from above solutions by number[\s\S,]* \[1/m;
+            my $migration_checks = [$zypper_migration_conflict, $zypper_migration_done, $zypper_continue];
+            my $out                        = wait_serial($migration_checks, $timeout_hack);
+            while ($out) {
+                 if ($out =~ $zypper_migration_conflict) {
+                     send_key "1";
+                     send_key "ret";
+                     save_screenshot;
+                 }
+                 elsif ($out =~ $zypper_continue) {
+                     send_key "y";
+                     send_key "ret";
+                     save_screenshot;
+                 }
+                 elsif ($out =~ $zypper_migration_done) {
+                     save_screenshot;
+                     last;
+                 }
+                 $out = wait_serial($migration_checks, $timeout_hack);
+            }
+            last;
+            #############hack
             next unless get_var('FLAVOR', '') =~ /-(Updates|Incidents)$/;
         }
         if (get_var('FLAVOR', '') =~ /-(Updates|Incidents)/ && ($ret == 4 || $ret == 8 || $ret == 105 || $ret == 106 || $ret == 139 || $ret == 141)) {
