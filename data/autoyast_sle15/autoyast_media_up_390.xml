@@ -5,30 +5,9 @@
     <add_on_products config:type="list">
       <listentry>
         <media_url>
-            <![CDATA[http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Basesystem-GM/s390x/DVD1/]]>
+            <![CDATA[ftp://openqa.suse.de/SLE-12-SP5-SDK-POOL-s390x-Build0291-Media1/]]>
         </media_url>
-        <product>sle-module-basesystem</product>
-        <product_dir>/</product_dir>
-      </listentry>
-      <listentry>
-        <media_url>
-            <![CDATA[http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Desktop-Applications-GM/s390x/DVD1/]]>
-        </media_url>
-        <product>sle-module-desktop-applications</product>
-        <product_dir>/</product_dir>
-      </listentry>
-      <listentry>
-        <media_url>
-            <![CDATA[http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Server-Applications-GM/s390x/DVD1/]]>
-        </media_url>
-        <product>sle-module-server-applications</product>
-        <product_dir>/</product_dir>
-      </listentry>
-      <listentry>
-        <media_url>
-            <![CDATA[http://inst.suse.de/install/SLP/SLE-15-SP1-Module-Legacy-GM/s390x/DVD1/]]>
-        </media_url>
-        <product>sle-module-legacy</product>
+        <product>sle-sdk</product>
         <product_dir>/</product_dir>
       </listentry>
     </add_on_products>
