@@ -8,6 +8,7 @@
 # notice and this notice are preserved.  This file is offered as-is,
 # without any warranty.
 
+#aaaaa
 # Summary: Rework the tests layout.
 # - Check if iso size is smaller than max defined size
 # Maintainer: Alberto Planas <aplanas@suse.com>
@@ -35,6 +36,8 @@ sub run {
     }
 
     diag($result_text);
+    record_info('isosize', $result_text, result => $result);
+    record_info('isosize', $result_text, result => $result);
     record_info('isosize', $result_text, result => $result);
 
     $self->result($result);
