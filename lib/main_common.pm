@@ -197,6 +197,18 @@ sub setup_env {
         set_var('ORIGINAL_TARGET_VERSION', get_var('VERSION'));
         set_var('VERSION',                 get_var('UPGRADE_TARGET_VERSION'));
     }
+
+    # This is for 15-sp2 project specific flavor check
+    #gaowei debug
+    print "=====".get_var('ISO')."============";
+    if (check_var('FLAVOR', 'Migration-from-SLE11-SP4-to-SLE15-SP2') || check_var('FLAVOR', 'Migration-from-SLE12-SP5-to-SLE15-SP2') || check_var('FLAVOR', 'Migration-from-SLE15-SPX-to-SLE15-SP2') || check_var('FLAVOR', 'Regression-on-Migration-from-SLE11-SP4-to-SLE15-SP2') || check_var('FLAVOR', 'Regression-on-Migration-from-SLE12-SP5-to-SLE15-SP2') || check_var('FLAVOR', 'Regression-on-Migration-from-SLE15-SPX-to-SLE15-SP2')) {
+        if (check_var('MEDIA_UPGRADE', 1)) {
+           set_var('ISO', "1SLE-".get_var('VERSION')."-Full-".get_var('ARCH')."-Build".get_var('BUILD')."-Media1.iso");
+        }
+        else {
+           set_var('ISO', "1SLE-".get_var('VERSION')."-Online-".get_var('ARCH')."-Build".get_var('BUILD')."-Media1.iso");
+        }
+    }
 }
 
 sub data_integrity_is_applicable {
