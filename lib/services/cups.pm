@@ -67,7 +67,7 @@ sub check_function {
     }
 
     systemctl 'restart cups.service';
-    validate_script_output 'systemctl --no-pager status cups.service | cat', sub { m/Active:\s*active/ };
+    validate_script_output 'systemctl --no-pager status cups.service | cat', sub { m/Active:\s*active/ }, timeout => 60;
 
     # Do the printing
     record_info "lp, lpq", "Printing jobs";
@@ -84,7 +84,7 @@ sub check_function {
     # Remove printers
     record_info "lpadmin -x", "Removing printers";
     assert_script_run "lpadmin -x $_" foreach (qw(printer_tmp printer_null));
-    validate_script_output 'lpstat -p -d -o 2>&1 || test $? -eq 1', sub { m/No destinations added/ };
+    validate_script_output 'lpstat -p -d -o 2>&1 || test $? -eq 1', sub { m/No destinations added/ }, timeout => 60;
 }
 
 # check apache service before and after migration
