@@ -29,14 +29,15 @@ sub run {
     my ($self) = @_;
 
     # We should call reconnect_mgmt_console to handle_grub_zvm/grab serial iucvconn etc for s390 backend
-    if (check_var("BACKEND", "s390x") && check_var("UPGRADE", "1") && is_sle('15+')) {
+    #if (check_var("BACKEND", "s390x") && check_var("UPGRADE", "1") && is_sle('15+')) {
     set_var('DESKTOP', 'textmode');
         reconnect_mgmt_console;
-    }
+        #}
 
     select_console 'root-console';
     systemctl('status firewalld');
     systemctl('stop firewalld');
+    set_var('DESKTOP', 'gnome');
     select_console('x11', await_console => 0);
 
 
