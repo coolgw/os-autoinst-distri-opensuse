@@ -14,10 +14,18 @@
 use strict;
 use warnings;
 use base "installbasetest";
-use utils 'reconnect_mgmt_console';
+#use utils 'reconnect_mgmt_console';
+use utils 'systemctl', 'reconnect_mgmt_console';
+use testapi;
 
 sub run {
+    set_var('DESKTOP', 'textmode');
     reconnect_mgmt_console;
+    select_console 'root-console';
+    systemctl('status SuSEfirewall2');
+    systemctl('stop SuSEfirewall2');
+    set_var('DESKTOP', 'gnome');
+    select_console('x11', await_console => 0);
 }
 
 1;
