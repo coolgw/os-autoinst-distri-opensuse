@@ -1362,6 +1362,11 @@ sub reconnect_mgmt_console {
         }
 
         if (!check_var('DESKTOP', 'textmode')) {
+            if (check_var("UPGRADE", "1") && is_sle('15+') && is_sle('<15', get_var('HDDVERSION'))) {
+                select_console 'root-console';
+                record_soft_failure('bsc#1154156 - After upgrade from 12SP5, SuSEfirewall2 blocks xvnc.socket on s390x');
+                systemctl('stop SuSEfirewall2');
+            }
             select_console('x11', await_console => 0);
         }
     }
