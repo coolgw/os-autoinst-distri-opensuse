@@ -1364,8 +1364,12 @@ sub reconnect_mgmt_console {
         if (!check_var('DESKTOP', 'textmode')) {
             if (check_var("UPGRADE", "1") && is_sle('15+') && is_sle('<15', get_var('HDDVERSION'))) {
                 select_console 'root-console';
+                script_run 'iptables -S';
+
                 record_soft_failure('bsc#1154156 - After upgrade from 12SP5, SuSEfirewall2 blocks xvnc.socket on s390x');
-                systemctl('stop SuSEfirewall2');
+                script_run 'yast2 firewall services add zone=EXT service=service:vnc-server';
+                script_run 'iptables -S';
+                #systemctl('stop SuSEfirewall2');
             }
             select_console('x11', await_console => 0);
         }
