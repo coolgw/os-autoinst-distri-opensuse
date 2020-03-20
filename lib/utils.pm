@@ -1367,7 +1367,12 @@ sub reconnect_mgmt_console {
                 script_run 'iptables -S';
 
                 record_soft_failure('bsc#1154156 - After upgrade from 12SP5, SuSEfirewall2 blocks xvnc.socket on s390x');
-                script_run 'yast2 firewall services add zone=EXT service=service:vnc-server';
+                #script_run 'yast2 firewall services add zone=EXT service=service:vnc-server';
+                script_run 'iptables -S';
+                if (script_run("iptables -S | grep 'A input_ext.*tcp.*dport 59.*-j ACCEPT'", 30) != 0) {
+                script_run 'ip a';
+                }
+                script_run 'iptables -I input_ext -p tcp -m tcp --dport 5900:5999 -j ACCEPT';
                 script_run 'iptables -S';
                 #systemctl('stop SuSEfirewall2');
             }
