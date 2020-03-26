@@ -443,6 +443,9 @@ sub export_logs {
     my $compression = is_sle('=12-sp1') ? 'bz2' : 'xz';
     script_run "save_y2logs /tmp/y2logs_clone.tar.$compression";
     upload_logs "/tmp/y2logs_clone.tar.$compression";
+    script_run("zypper -n patch --debug-solver --with-interactive -l");
+    script_run("tar -cvjf /tmp/solverTestCase.tar.bz2 /var/log/zypper.solverTestCase/*");
+    upload_logs "/tmp/solverTestCase.tar.bz2 ";
     $self->investigate_yast2_failure();
 }
 
