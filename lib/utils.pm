@@ -70,6 +70,7 @@ our @EXPORT = qw(
   get_root_console_tty
   get_x11_console_tty
   OPENQA_FTP_URL
+  IN_ZYPPER_CALL
   arrays_differ
   arrays_subset
   ensure_serialdev_permissions
@@ -106,6 +107,9 @@ use constant VERY_SLOW_TYPING_SPEED => 4;
 
 # openQA internal ftp server url
 our $OPENQA_FTP_URL = "ftp://openqa.suse.de";
+
+# set flag IN_ZYPPER_CALL in zypper_call and unset when leaving
+our $IN_ZYPPER_CALL = 0;
 
 =head2 save_svirt_pty
 
@@ -484,6 +488,7 @@ for example:
 C<dumb_term> will default to C<is_serial_terminal()>.
 =cut
 sub zypper_call {
+    $IN_ZYPPER_CALL      = 1;
     my $command          = shift;
     my %args             = @_;
     my $allow_exit_codes = $args{exitcode} || [0];
@@ -522,6 +527,7 @@ sub zypper_call {
         upload_logs('/var/log/zypper.log');
         die "'zypper -n $command' failed with code $ret";
     }
+    $IN_ZYPPER_CALL = 0;
     return $ret;
 }
 
