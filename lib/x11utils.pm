@@ -112,6 +112,17 @@ sub ensure_unlocked_desktop {
                     assert_screen 'generic-desktop';
                 }
                 else {
+                    #check  quick debug for screenn lock
+                    send_key 'esc';                                                                           # end screenlock
+                    wait_still_screen 1;                                                                              # slow down loop
+                    save_screenshot;
+                    wait_still_screen 1;                                                                              # slow down loop
+                    save_screenshot;
+                    send_key 'esc';                                                                           # end screenlock
+                    wait_still_screen 1;                                                                              # slow down loop
+                    save_screenshot;
+                    wait_still_screen 1;                                                                              # slow down loop
+                    save_screenshot;
                     next;    # most probably screen is locked
                 }
             }
