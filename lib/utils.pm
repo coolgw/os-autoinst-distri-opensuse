@@ -1000,7 +1000,7 @@ some basic logging information to the serial output.
 sub handle_emergency {
     if (match_has_tag('emergency-shell')) {
         # get emergency shell logs for bug, scp doesn't work
-        script_run "cat /run/initramfs/rdsosreport.txt > /dev/$serialdev";
+        #script_run "cat /run/initramfs/rdsosreport.txt > /dev/$serialdev";
         die "hit emergency shell";
     }
     elsif (match_has_tag('emergency-mode')) {

@@ -20,6 +20,7 @@
 use strict;
 use warnings;
 use base 'bootbasetest';
+use testapi;
 
 sub run {
     shift->wait_boot_past_bootloader;
@@ -27,6 +28,19 @@ sub run {
 
 sub test_flags {
     return {fatal => 1, milestone => 1};
+}
+
+sub post_fail_hook {
+    my ($self) = @_;
+    type_string "nots3cr3t";
+    send_key 'ret';
+    save_screenshot;
+    type_string "shutdown now";
+    send_key 'ret';
+    #type_string "poweroff";
+    #send_key 'ret';
+    sleep 60;
+    #$self->SUPER::post_fail_hook;
 }
 
 1;
