@@ -78,6 +78,15 @@ sub run {
         "System Role screen is displayed only for x86_64 in SLE-12-SP5 due to it has more than one role available"
     ) if (is_sle('=12-SP5') && !check_var('ARCH', 'x86_64'));
     assert_system_role;
+    set_var('DESKTOP', 'gnome');
+                select_console 'log-console';
+    script_run 'ps -aux | grep vnc';
+    script_run 'ss -ntlp | grep 59';
+script_run 'systemctl status firewalld.service';
+script_run 'systemctl stop firewalld.service';
+script_run 'ip route';
+script_run 'ip a';
+                select_console 'installation';
 }
 
 1;
