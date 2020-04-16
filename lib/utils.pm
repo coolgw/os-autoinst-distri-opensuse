@@ -1373,6 +1373,11 @@ sub reconnect_mgmt_console {
                 sleep 2;
                 script_run 'ss -ntlp | grep 59';
             }
+             select_console 'log-console';
+                script_run 'systemctl status firewalld.service';
+                script_run 'systemctl stop firewalld.service';
+                script_run 'ps -aux | grep vnc';
+                script_run 'ss -ntlp | grep 59';
             select_console('x11', await_console => 0);
         }
     }
