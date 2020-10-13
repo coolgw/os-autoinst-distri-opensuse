@@ -34,6 +34,7 @@ use services::cups;
 use services::rpcbind;
 use autofs_utils;
 use services::postfix;
+use services::sssd;
 use kdump_utils;
 use version_utils 'is_sle';
 
@@ -162,6 +163,12 @@ our $default_services = {
         srv_proc_name      => 'kdump',
         support_ver        => $support_ver_def,
         service_check_func => \&full_kdump_check
+    },
+    sssd => {
+        srv_pkg_name       => 'sssd',
+        srv_proc_name      => 'sssd',
+        support_ver        => $support_ver_def,
+        service_check_func => \&full_sssd_check
     },
 };
 

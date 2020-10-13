@@ -31,64 +31,12 @@ use testapi;
 use utils 'zypper_call';
 use version_utils qw(is_sle is_opensuse);
 use registration "add_suseconnect_product";
+use services::sssd;
 
 sub run {
     my ($self) = @_;
-    $self->select_serial_terminal;
-
-    if (is_sle) {
-        assert_script_run 'source /etc/os-release';
-        if (is_sle '>=15') {
-            add_suseconnect_product('PackageHub', undef, undef, undef, 300, 1);
-            add_suseconnect_product('sle-module-legacy');
-        }
-    }
-
-    # Install test subjects and test scripts
-    my @test_subjects = qw(
-      sssd sssd-krb5 sssd-krb5-common sssd-ldap sssd-tools
-      openldap2 openldap2-client
-      krb5 krb5-client krb5-server krb5-plugin-kdb-ldap
-    );
-
-    # for sle 12 we still use and support python2
-    push @test_subjects, 'python-pam'         if is_sle('<15');
-    push @test_subjects, 'python3-python-pam' if is_sle('15+') || is_opensuse;
-
-    if (check_var('DESKTOP', 'textmode')) {    # sssd test suite depends on killall, which is part of psmisc (enhanced_base pattern)
-        zypper_call "in psmisc";
-    }
-    zypper_call "refresh";
-    zypper_call "in @test_subjects";
-    assert_script_run "cd; curl -L -v " . autoinst_url . "/data/lib/version_utils.sh > /usr/local/bin/version_utils.sh";
-    assert_script_run "cd; curl -L -v " . autoinst_url . "/data/sssd-tests > sssd-tests.data && cpio -id < sssd-tests.data && mv data sssd && ls sssd";
-
-    # Get sssd version, as 2.0+ behaves differently
-    my $sssd_version = script_output('rpm -q sssd --qf \'%{VERSION}\'');
-
-    # The test scenarios are now ready to run
-    my @scenario_failures;
-
-    my @scenario_list;
-    push @scenario_list, 'local' if (version->parse($sssd_version) < version->parse(2.0.0));    # sssd 2.0+ removed support of 'local'
-    push @scenario_list, qw(
-      ldap
-      ldap-no-auth
-      ldap-nested-groups
-      krb
-    );
-
-    foreach my $scenario (@scenario_list) {
-        # Download the source code of test scenario
-        script_run "cd ~/sssd && curl -L -v " . autoinst_url . "/data/sssd-tests/$scenario > $scenario/cdata";
-        script_run "cd $scenario && cpio -idv < cdata && mv data/* ./; ls";
-        validate_script_output 'bash -x test.sh', sub {
-            (/junit testsuite/ && /junit success/ && /junit endsuite/) or push @scenario_failures, $scenario;
-        }, 120;
-    }
-    if (@scenario_failures) {
-        die "Some test scenarios failed: @scenario_failures";
-    }
+    $self->select_serial_terminal();
+    services::sssd::full_sssd_check();
 }
 
 1;
