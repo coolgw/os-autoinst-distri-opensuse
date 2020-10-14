@@ -16,9 +16,7 @@ sssd_test_common_setup
 export SPECNAME=sssd.localdb
 test_suite_start 'Use SSSD with a local user database'
 
-test_case 'Start SSSD'
-sssd -f -c sssd.conf || test_fatal 'Failed to start SSSD'
-test_ok
+sssd_start_check_service
 
 test_case 'Add users'
 sss_useradd testuser1 && sss_useradd testuser2 || test_fatal 'Failed to add new users'

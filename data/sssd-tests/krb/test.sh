@@ -59,9 +59,7 @@ kadmin.local -r LDAPDOM.NET -q 'addprinc -x dn="uid=testuser2,ou=UnixUser,dc=lda
 kadmin.local -r LDAPDOM.NET -q 'modprinc +requires_preauth testuser1' &> /dev/null &&
 kadmin.local -r LDAPDOM.NET -q 'modprinc +requires_preauth testuser2' &> /dev/null &&
 
-test_case 'Start SSSD'
-sssd -f -c sssd.conf || test_fatal 'Failed to start SSSD'
-test_ok
+sssd_start_check_service
 
 credentials_test() {
 	mode=$1

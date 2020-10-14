@@ -13,7 +13,7 @@ SSS_RELATED_UNITS='nscd.service nscd.socket krb5kdc.service kadmind.service sssd
 # in place, otherwise copy the system template file.
 if [ ! -f /etc/nsswitch.conf ]; then
   cp /usr/etc/nsswitch.conf /etc/nsswitch.conf
-fi 
+fi
 
 # Comprehensive list of system-wide configuration files touched by test cases
 declare -a bakfiles=(/etc/hosts /etc/nsswitch.conf /etc/krb5.conf /var/lib/kerberos/krb5kdc/kdc.conf)
@@ -100,6 +100,37 @@ test_fatal() {
 test_abort() {
 	../junit.sh error -T "$1"
 	exit 1
+}
+
+sssd_start_service() {
+    mv sssd.conf /etc/sssd/sssd.conf
+    systemctl start sssd || test_fatal 'Failed to start SSSD'
+}
+
+sssd_enalbe_service() {
+    systemctl enable sssd || test_fatal 'Failed to enable SSSD'
+}
+
+sssd_check_service() {
+    systemctl is-active || test_fatal 'Failed to active SSSD'
+}
+
+sssd_start_check_service() {
+    test_case 'Start SSSD'
+    if [ $1 ]
+    then
+        if [ $1 = "before" ]
+        then
+            sssd_enable_service
+            sssd_start_service
+            sssd_check_service
+        else
+            sssd_check_service
+        fi
+    else
+        sssd_start_service
+    fi
+    test_ok
 }
 
 

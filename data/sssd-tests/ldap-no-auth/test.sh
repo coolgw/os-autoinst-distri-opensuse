@@ -25,9 +25,7 @@ $SLAPD -h 'ldap:///' -f slapd.conf &&
 sleep 2 &&
 ldapadd -x -D 'cn=root,dc=ldapdom,dc=net' -wpass -f db.ldif &> /dev/null || test_abort 'Failed to prepare LDAP server'
 
-test_case 'Start SSSD'
-sssd -f -c sssd.conf || test_fatal 'Failed to start SSSD'
-test_ok
+sssd_start_check_service
 
 test_case 'Look up users in LDAP via SSSD'
 lookup_success=0

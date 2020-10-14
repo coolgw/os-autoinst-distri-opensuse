@@ -168,7 +168,7 @@ our $default_services = {
         srv_pkg_name       => 'sssd',
         srv_proc_name      => 'sssd',
         support_ver        => $support_ver_def,
-        service_check_func => \&full_sssd_check
+        service_check_func => \&services::sssd::full_sssd_check
     },
 };
 
