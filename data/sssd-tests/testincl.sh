@@ -103,7 +103,8 @@ test_abort() {
 }
 
 sssd_start_service() {
-    mv sssd.conf /etc/sssd/sssd.conf
+    # mv -> cp
+    cp sssd.conf /etc/sssd/sssd.conf
     systemctl start sssd || test_fatal 'Failed to start SSSD'
 }
 

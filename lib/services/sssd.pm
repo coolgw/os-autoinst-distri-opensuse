@@ -28,7 +28,7 @@ use strict;
 use warnings;
 
 use testapi;
-use utils 'zypper_call';
+use utils ;
 use version_utils qw(is_sle is_opensuse);
 use registration "add_suseconnect_product";
 
@@ -62,6 +62,10 @@ sub prepare_env {
     assert_script_run "cd; curl -L -v " . autoinst_url . "/data/lib/version_utils.sh > /usr/local/bin/version_utils.sh";
     assert_script_run "cd; curl -L -v " . autoinst_url . "/data/sssd-tests > sssd-tests.data && cpio -id < sssd-tests.data && mv data sssd && ls sssd";
 
+    # debug
+    script_run "pwd";
+    script_run "ll";
+
     # Get sssd version, as 2.0+ behaves differently
     my $sssd_version = script_output('rpm -q sssd --qf \'%{VERSION}\'');
 
@@ -73,24 +77,88 @@ sub prepare_env {
     ldap-nested-groups
     krb
     );
+
 }
+
+sub d389_check {
+    my %args;
+    $args{ignore_failure} //= 1;
+    my $sss_related_units="nscd.service nscd.socket krb5kdc.service kadmind.service slapd.service";
+	# Disable potentially conflicting system services
+    systemctl("stop $sss_related_units",    ignore_failure => $args{ignore_failure});
+    systemctl("disable $sss_related_units",    ignore_failure => $args{ignore_failure});
+    script_run "killall -TERM slapd krb5kdc kadmind";
+    # try check ldap-no-auth
+    script_run "cd ~/sssd/ldap-no-auth";
+    # check sssd status and conf
+    systemctl("status sssd",    ignore_failure => $args{ignore_failure});
+    systemctl("start sssd",    ignore_failure => $args{ignore_failure});
+    script_run "cat /etc/sssd/sssd.conf";
+    script_run "cat /etc/nsswitch.conf";
+    # Fix me nsswitch seems not correct
+    script_run "sed -i 's/^passwd:.*/passwd: compat sss/' /etc/nsswitch.conf";
+    script_run "sed -i 's/^group:.*/group: compat sss/' /etc/nsswitch.conf";
+
+    script_run "cp ./sssd.conf /etc/sssd/sssd.conf";
+    # Fix me we should keep correct sssd.conf before migration
+    systemctl("restart sssd",    ignore_failure => $args{ignore_failure});
+    script_run "pwd";
+    script_run "ll";
+    # Fixme, we need start openldap to kick out date base file which stored in directory   /tmp/ldap-sssdtest
+    #script_run "slapd -h 'ldap:///' -f slapd.conf";
+    #script_run "ldapadd -x -D 'cn=root,dc=ldapdom,dc=net' -wpass -f db.ldif";
+    #script_run "killall slapd";
+    script_run "sed -i 's/directory.*//' ./slapd.conf";
+    # d389 tools
+    zypper_call "in 389-ds";
+    script_run "rpm -qa 389-ds";
+    # zypper_call "in 389-ds-1.4.4.13~git0.6841d693f-1.1.x86_64";
+    script_run "mkdir slapd.d";
+    script_run "dscreate from-file ./instance.inf";
+    script_run "dsctl localhost status";
+    script_run "slaptest -f slapd.conf -F ./slapd.d";
+    script_run "openldap_to_ds --confirm localhost ./slapd.d ./db.ldif";
+    script_run "ldapmodify -H ldap://localhost -x -D 'cn=Directory Manager' -w YOUR_ADMIN_PASSWORD_HERE -f aci.ldif";
+    script_run "dsidm localhost account list ";
+    #validate_script_output("dsidm localhost account list", sub{ m/testuser1/ });
+    validate_script_output("getent passwd testuser1\@ldapdom", sub { m/testuser1.*testuser1/ });
+
+    #Manual fix memberof plugin
+    script_run "dsconf localhost plugin memberof show";
+    script_run "systemctl restart dirsrv\@localhost";
+    script_run "dsconf localhost plugin memberof fixup dc=ldapdom,dc=net -f '(objectClass=*)'";
+
+    # check memeberof plugin
+    validate_script_output("ldapsearch -H ldap://localhost -b 'dc=ldapdom,dc=net' -s sub -x -D 'cn=Directory Manager' -w YOUR_ADMIN_PASSWORD_HERE memberof", sub{ m/memberof:.*group1/ });
+}
+
 
 # check sssd service before and after migration
 # stage is 'before' or 'after' system migration.
 sub full_sssd_check {
-    prepare_env;
     my ($stage) = @_;
     $stage //= '';
-    foreach my $scenario (@scenario_list) {
-        # Download the source code of test scenario
-        script_run "cd ~/sssd && curl -L -v " . autoinst_url . "/data/sssd-tests/$scenario > $scenario/cdata";
-        script_run "cd $scenario && cpio -idv < cdata && mv data/* ./; ls";
-        validate_script_output 'bash -x test.sh $stage', sub {
-            (/junit testsuite/ && /junit success/ && /junit endsuite/) or push @scenario_failures, $scenario;
-        }, 120;
-    }
-    if (@scenario_failures) {
-        die "Some test scenarios failed: @scenario_failures";
+    if ($stage eq 'before') {
+        prepare_env;
+        foreach my $scenario (@scenario_list) {
+            # Download the source code of test scenario
+            script_run "cd ~/sssd && curl -L -v " . autoinst_url . "/data/sssd-tests/$scenario > $scenario/cdata";
+            script_run "cd $scenario && cpio -idv < cdata && mv data/* ./; ls";
+            validate_script_output 'bash -x test.sh $stage', sub {
+                (/junit testsuite/ && /junit success/ && /junit endsuite/) or push @scenario_failures, $scenario;
+            }, 120;
+        }
+        if (@scenario_failures) {
+            die "Some test scenarios failed: @scenario_failures";
+        }
+        my %args;
+        $args{ignore_failure} //= 1;
+        systemctl("status sssd",    ignore_failure => $args{ignore_failure});
+        systemctl("enable sssd",    ignore_failure => $args{ignore_failure});
+        systemctl("start sssd",    ignore_failure => $args{ignore_failure});
+        systemctl("status sssd",    ignore_failure => $args{ignore_failure});
+    } else {
+        d389_check; 
     }
 }
 
