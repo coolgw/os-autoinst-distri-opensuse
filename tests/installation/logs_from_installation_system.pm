@@ -59,6 +59,15 @@ sub run {
     # We don't change network setup here, so should work
     # We don't parse logs unless it's detect_yast2_failures scenario
     $self->save_upload_y2logs(no_ntwrk_recovery => 1, skip_logs_investigation => !get_var('ASSERT_Y2LOGS'));
+
+    # debug plymouth
+    assert_script_run("sed -i 's/mitigations=auto/mitigations=auto plymouth.debug/' /etc/default/grub");
+    assert_script_run("cat /etc/default/grub");
+    assert_script_run("grub2-mkconfig -o /boot/grub2/grub.cfg");
+    assert_script_run("cat /boot/grub2/grub.cfg");
+
+    assert_script_run("sed -i 's/KillMode=mixed/KillMode=none/' /usr/lib/systemd/system/plymouth-start.service");
+    assert_script_run("cat /usr/lib/systemd/system/plymouth-start.service");
 }
 
 sub test_flags {

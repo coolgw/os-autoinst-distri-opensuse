@@ -20,6 +20,8 @@
 use strict;
 use warnings;
 use base 'bootbasetest';
+ use testapi;
+ use utils;
 
 sub run {
     shift->wait_boot_past_bootloader;
@@ -28,6 +30,16 @@ sub run {
 sub test_flags {
     return {fatal => 1, milestone => 1};
 }
+
+sub post_fail_hook {
+    select_console 'log-console';
+    zypper_call 'in supportutils';
+    upload_logs('/var/log/plymouth-debug.log');
+    assert_script_run('supportconfig',            600);
+    assert_script_run('mv $(ls -t /var/log/*.txz | head -1) supportconfig.txz');
+    upload_logs('supportconfig.txz');
+}
+
 
 # 'generic-desktop' already checked in wait_boot_past_bootloader
 sub post_run_hook { }
