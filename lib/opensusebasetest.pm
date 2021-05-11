@@ -679,6 +679,10 @@ sub wait_grub {
             send_key_until_needlematch 'inst-bootmenu-boot-harddisk', 'up';
             send_key 'ret';
         }
+	#gaowei
+        if (check_screen("tianocore-mainmenu", 15)) {
+	handle_uefi_boot_disk_workaround;
+	}
         assert_screen "grub2", 15;
     }
     elsif (match_has_tag('bootloader-shim-verification') || match_has_tag('shim-key-management')) {
