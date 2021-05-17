@@ -17,6 +17,7 @@ schedule:
   - update/patch_sle
   - migration/record_disk_info
   - '{{install_service}}'
+  - console/sssd_389ds_functional
   - migration/reboot_to_upgrade
   - migration/version_switch_upgrade_target
   - '{{isosize_test}}'
@@ -42,6 +43,7 @@ schedule:
   - console/prepare_test_data
   - console/consoletest_setup
   - '{{check_upgraded_service}}'
+  - console/sssd_389ds_functional
   - migration/openldap_to_389ds
   - '{{regression_tests}}'
   - boot/grub_test_snapshot
