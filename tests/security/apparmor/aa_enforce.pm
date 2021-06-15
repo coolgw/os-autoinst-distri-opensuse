@@ -37,6 +37,8 @@ sub run {
 
     # Verify "https://bugs.launchpad.net/apparmor/+bug/1848227"
     $self->test_profile_content_is_special("aa-enforce", "Setting.*to enforce mode");
+    autotest::loadtest("/tests/security/apparmor/aa_status.pm");
+
 }
 
 1;
