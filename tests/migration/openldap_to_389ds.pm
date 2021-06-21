@@ -36,6 +36,8 @@ sub run {
     # Install 389-ds and sssd on client
     zypper_call("in 389-ds sssd sssd-tools");
     zypper_call('info 389-ds');
+    # Install openssl
+    zypper_call("in openssl");
     # Install openldap since we need use slaptest tools
     add_suseconnect_product('sle-module-legacy') if is_sle;
     zypper_call("in openldap2 sssd-ldap openldap2-client");
