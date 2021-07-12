@@ -23,13 +23,49 @@ use partition_setup qw(%partition_roles is_storage_ng_newui);
 sub run {
     assert_screen 'partitioning-edit-proposal-button', 40;
     if (check_var('PARTITION_EDIT', 'ext4_btrfs')) {
+wait_screen_change {
         send_key 'alt-g';
+};
+record_info('INFO', "after alt-g");
+wait_still_screen();
+save_screenshot;
+wait_screen_change {
         send_key 'alt-n';
+};
+record_info('INFO', "after alt-n");
+wait_still_screen();
+save_screenshot;
+wait_screen_change {
         send_key 'down';
+};
+record_info('INFO', "after down");
+wait_still_screen();
+save_screenshot;
+wait_screen_change {
         send_key 'alt-f';
+};
+record_info('INFO', "after alt-f");
+wait_still_screen();
+save_screenshot;
+wait_screen_change {
         type_string 'ext4';
+};
+record_info('INFO', "type string ext4");
+wait_still_screen();
+save_screenshot;
+wait_screen_change {
         send_key 'alt-i';
-        send_key 'b';
+};
+record_info('INFO', "after alt-i");
+wait_still_screen();
+save_screenshot;
+wait_screen_change {
+#        send_key 'b';
+};
+#record_info('INFO', "after b ");
+record_info('INFO', "SKIP after b ");
+wait_still_screen();
+save_screenshot;
         assert_screen 'partitioning-ext4_root-btrfs_home';
         send_key 'alt-n';
     }
