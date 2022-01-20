@@ -78,7 +78,16 @@ sub ensure_unlocked_desktop {
         my @tags = qw(displaymanager displaymanager-password-prompt generic-desktop screenlock screenlock-password authentication-required-user-settings authentication-required-modify-system guest-disabled-display oh-no-something-has-gone-wrong);
         push(@tags, 'blackscreen') if get_var("DESKTOP") =~ /minimalx|xfce/;    # Only xscreensaver and xfce have a blackscreen as screenlock
         push(@tags, 'gnome-activities') if check_var('DESKTOP', 'gnome');
-        assert_screen \@tags, no_wait => 1;
+        eval {
+	  assert_screen \@tags, no_wait => 1;
+	};
+	if ($@) {
+            record_info("pause for a long time!!!!!!!!", "failed reason: $@", result => 'fail');
+            record_info("pause for a long time!!!!!!!!", "failed reason: $@", result => 'fail');
+            record_info("pause for a long time!!!!!!!!", "failed reason: $@", result => 'fail');
+            record_info("pause for a long time!!!!!!!!", "failed reason: $@", result => 'fail');
+	    sleep 10000000;
+	};
         # Starting with GNOME 40, upon login, the activities screen is open (assuming the
         # user will want to start something. For openQA, we simply press 'esc' to close
         # it again and really end up on the desktop
