@@ -28,6 +28,7 @@ sub run {
     # check the network configuration
     script_run "ip addr show";
     script_run "cat /etc/resolv.conf";
+    script_run "readlink /etc/systemd/system/network.service";
 }
 
 1;
