@@ -1344,6 +1344,8 @@ sub post_fail_hook {
     # Upload basic health check log
     select_log_console;
     $self->export_healthcheck_basic;
+    assert_script_run 'save_y2logs /tmp/y2logs.tar.bz2';
+    upload_logs '/tmp/y2logs.tar.bz2';
 
     # set by x11_start_program
     if (get_var('IN_X11_START_PROGRAM')) {
