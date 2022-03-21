@@ -21,6 +21,7 @@ sub run {
 
     # print repos to screen and serial console after online migration
     assert_script_run "zypper lr --uri | tee /dev/$serialdev";
+    assert_script_run "rpm -qi --changelog tigervnc | head -n 40 | tee /dev/$serialdev";
 
     # Save output info to logfile
     my $out;
