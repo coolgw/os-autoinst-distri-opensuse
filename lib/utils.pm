@@ -148,7 +148,10 @@ sub type_line_svirt {
     my ($string, %args) = @_;
     enter_cmd "echo $string > \$pty";
     if ($args{expect}) {
-        wait_serial($args{expect}, $args{timeout}) || die $args{fail_message} // 'expected \'' . $args{expect} . '\' not found';
+       if (!wait_serial($args{expect}, $args{timeout})) {
+            enter_cmd "echo $string > \$pty";
+            wait_serial($args{expect}, $args{timeout}) || die $args{fail_message} // 'expected \'' . $args{expect} . '\' not found';
+       }
     }
 }
 
