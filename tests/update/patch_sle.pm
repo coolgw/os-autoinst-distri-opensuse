@@ -214,6 +214,8 @@ sub sle_register {
             assert_script_run('suse_register -E');
         }
     }
+    #wegao quick hack
+    systemctl('disable firewalld');
 }
 
 
