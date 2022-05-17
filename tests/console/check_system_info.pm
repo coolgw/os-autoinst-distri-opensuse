@@ -157,6 +157,10 @@ sub run {
     select_console('root-console');
     assert_script_run('setterm -blank 0') unless (is_s390x);
 
+   # Record the installed rpm list
+    assert_script_run 'rpm -qa > /tmp/rpm-qa-after.txt';
+    upload_logs '/tmp/rpm-qa-after.txt';
+
     script_run('zypper lr | tee /tmp/zypperlr.txt', 200);
 
     # Need make sure the system is registered then check modules
