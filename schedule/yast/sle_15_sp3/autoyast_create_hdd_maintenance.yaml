@@ -20,3 +20,4 @@ schedule:
   - shutdown/grub_set_bootargs
   - shutdown/cleanup_before_shutdown
   - shutdown/shutdown
+

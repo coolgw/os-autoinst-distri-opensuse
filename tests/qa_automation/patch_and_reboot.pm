@@ -53,6 +53,7 @@ sub run {
     } else {
         fully_patch_system;
     }
+    zypper_call "in yast2-migration zypper-migration-plugin rollback-helper snapper";
 
     my $suffix = is_jeos ? '-base' : '';
     assert_script_run("rpm -ql --changelog kernel-default$suffix > /tmp/kernel_changelog.log");

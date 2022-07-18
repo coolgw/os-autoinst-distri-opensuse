@@ -31,7 +31,7 @@
         %}
     </suse_register>
     <add-on>
-        <add_on_products config:type="list">
+        <add_on_others config:type="list">
             % for my $repo (@$repos) {
             % my ($repo_id, $addon) = $repo =~ (/(\d+)\/(.*)\//);
             <listentry>
@@ -40,7 +40,7 @@
 		        <alias><%= $addon . "_" . $repo_id %></alias>
             </listentry>
             % }
-        </add_on_products>
+        </add_on_others>
     </add-on>
     <bootloader>
         <global>
@@ -229,3 +229,4 @@ exit 0
         </post-scripts>
     </scripts>
 </profile>
+
