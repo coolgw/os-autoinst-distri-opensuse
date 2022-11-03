@@ -38,7 +38,7 @@ sub run {
     script_run('ls -alF /etc/sysconfig/network/');
     save_screenshot;
 
-    my $opened = open_yast2_lan();
+    my $opened = open_yast2_lan(ui => 'ncurses');
     wait_still_screen(14);
     if ($opened eq "Controlled by network manager") {
         return;

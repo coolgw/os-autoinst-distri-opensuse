@@ -407,9 +407,13 @@ If network is controlled by Networkmanager, don't change any network settings.
 =cut
 
 sub open_yast2_lan {
+    my %options = @_;
     my $is_nm = !script_run('systemctl is-active NetworkManager');    # Revert boolean because of bash vs perl's return code.
+    my $y2_opts = ($options{ui} =~ /ncurses/) ?
+      "--"  . $options{ui} :
+      "";
 
-    $module_name = y2_module_consoletest::yast2_console_exec(yast2_module => 'lan');
+    $module_name = y2_module_consoletest::yast2_console_exec(yast2_module => 'lan', yast2_opts => $y2_opts);
 
     if ($is_nm) {
         handle_Networkmanager_controlled;    # don't change any settings
