@@ -6,6 +6,7 @@ description: >
 vars:
   IBFT: '1'
   NBF: iqn.2016-02.openqa.de:for.openqa
+  WORKER_HOSTNAME: 10.162.31.52
   NICTYPE: user
   YUI_REST_API: 1
 schedule:
