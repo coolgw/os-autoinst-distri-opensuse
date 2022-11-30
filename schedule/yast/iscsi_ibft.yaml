@@ -3,10 +3,13 @@ name: iscsi_ibft
 description: >
   Conduct installation on iSCSI device relying on iBFT. Validate iBFT hardcoded
   information in sysfs and provide basic details of iscsi connection and session.
+  wegao nbf iqn.2016-02.openqa.de:for.openqa  10.162.31.52
+  iscsi:10.162.2.137::3260:1:iqn.2016-02.openqa.de:for.openqa
+
 vars:
   IBFT: '1'
   NBF: iqn.2016-02.openqa.de:for.openqa
-  WORKER_HOSTNAME: 10.162.31.52
+  WORKER_HOSTNAME: 10.162.2.137
   NICTYPE: user
   YUI_REST_API: 1
 schedule:
