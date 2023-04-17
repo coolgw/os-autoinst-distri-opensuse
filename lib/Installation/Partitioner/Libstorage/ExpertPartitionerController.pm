@@ -85,17 +85,25 @@ sub get_raid_options_page {
 sub run_expert_partitioner {
     my ($self) = @_;
     $self->get_suggested_partitioning_page()->press_create_partition_setup_button();
+save_screenshot;
     $self->get_preparing_hard_disk_page()->select_custom_partitioning_radiobutton();
+save_screenshot;
     $self->get_preparing_hard_disk_page()->press_next();
+save_screenshot;
     $self->get_expert_partitioner_page()->select_item_in_system_view_table('hard-disks');
+save_screenshot;
     $self->get_expert_partitioner_page()->expand_item_in_system_view_table();
+save_screenshot;
 }
 
 sub add_partition_on_gpt_disk {
     my ($self, $args) = @_;
     $self->get_expert_partitioner_page()->select_item_in_system_view_table($args->{disk});
+save_screenshot;
     $self->get_expert_partitioner_page()->press_add_partition_button();
+save_screenshot;
     $self->_add_partition($args->{partition});
+save_screenshot;
 }
 
 sub add_partition_on_msdos_disk {
@@ -130,8 +138,11 @@ sub add_raid {
 
 sub accept_changes_and_press_next {
     my ($self) = @_;
+save_screenshot;
     $self->accept_changes();
+save_screenshot;
     $self->get_suggested_partitioning_page()->press_next();
+save_screenshot;
 }
 
 sub accept_changes {

@@ -39,6 +39,7 @@ use Installation::Popups::YesNoPopup;
 use Installation::Popups::OKPopup;
 
 use YuiRestClient;
+use testapi;
 
 sub new {
     my ($class, $args) = @_;
@@ -245,30 +246,51 @@ sub add_partition_gpt {
 sub add_partition_gpt_encrypted {
     my ($self, $args) = @_;
     my $part = $args->{partition};
+save_screenshot;
     $self->get_expert_partitioner_page()->select_disk($args->{disk});
+save_screenshot;
     $self->get_expert_partitioner_page()->press_add_partition_button();
+save_screenshot;
     $self->get_new_partition_size_page()->set_custom_size($part->{size});
+save_screenshot;
     $self->get_role_page()->set_role($part->{role});
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->enter_formatting_options($part->{formatting_options}) if $part->{formatting_options};
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->select_partition_id($part->{id}) if $part->{id};
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->encrypt_device($part->{encrypt});
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->enter_mounting_options($part->{mounting_options}) if $part->{mounting_options};
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->press_next();
+save_screenshot;
     $self->get_encrypt_partition_page()->set_encryption();
+save_screenshot;
 }
 
 sub add_partition_gpt_non_encrypted {
     my ($self, $args) = @_;
     my $part = $args->{partition};
+save_screenshot;
     $self->get_expert_partitioner_page()->select_disk($args->{disk});
+save_screenshot;
     $self->get_expert_partitioner_page()->press_add_partition_button();
+save_screenshot;
     $self->get_new_partition_size_page()->set_custom_size($part->{size});
+save_screenshot;
     $self->get_role_page()->set_role($part->{role});
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->enter_formatting_options($part->{formatting_options}) if $part->{formatting_options};
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->select_partition_id($part->{id}) if $part->{id};
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->enter_mounting_options($part->{mounting_options}) if $part->{mounting_options};
+save_screenshot;
     $self->get_fstab_options_page()->edit_fstab_options($part->{fstab_options}) if $part->{fstab_options};
+save_screenshot;
     $self->get_partition_id_format_mount_options_page()->press_next();
+save_screenshot;
 }
 
 sub add_partition_msdos {
@@ -378,13 +400,19 @@ sub add_raid_partition_encrypted {
 
 sub create_new_partition_table {
     my ($self, $args) = @_;
+save_screenshot;
     $self->get_expert_partitioner_page()->select_disk($args->{name});
+save_screenshot;
     $self->get_expert_partitioner_page()->select_create_partition_table();
+save_screenshot;
     if ($args->{accept_deleting_current_devices_warning}) {
         $self->get_deleting_current_devices_warning()->press_yes();
+save_screenshot;
     }
     $self->get_create_new_partition_table_page()->select_partition_table_type($args->{table_type});
+save_screenshot;
     $self->get_create_new_partition_table_page()->press_next();
+save_screenshot;
 }
 
 sub add_volume_group {

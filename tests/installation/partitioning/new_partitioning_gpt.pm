@@ -22,10 +22,13 @@ sub run {
     my $test_data = get_test_suite_data();
 
     my $partitioner = $testapi::distri->get_expert_partitioner();
+save_screenshot;
     $partitioner->run_expert_partitioner('current');
 
     my $disk = $test_data->{disks}[0];
+save_screenshot;
     $partitioner->create_new_partition_table({name => $disk->{name}, accept_deleting_current_devices_warning => 1});
+save_screenshot;
 
     foreach my $partition (@{$disk->{partitions}}) {
         $partitioner->add_partition_on_gpt_disk({
@@ -34,8 +37,11 @@ sub run {
         });
     }
 
+save_screenshot;
     $partitioner->setup_lvm($test_data->{lvm}) if ($test_data->{lvm});
+save_screenshot;
     $partitioner->accept_changes_and_press_next();
+save_screenshot;
 }
 
 1;

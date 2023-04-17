@@ -186,8 +186,11 @@ sub open_partition_table_menu {
 
 sub create_new_partition_table {
     my ($self) = @_;
+save_screenshot;
     send_key_until_needlematch(SELECTED_CREATE_NEW_TABLE, 'down');
+save_screenshot;
     send_key "ret";
+save_screenshot;
 }
 
 sub select_partition_table_type {
