@@ -4,11 +4,11 @@ disks:
       - size: 2MiB
         role: raw-volume
         id: bios-boot
-      - size: 500MiB
+      - size: 501MiB
         role: operating-system
         formatting_options:
           should_format: 1
-          filesystem: ext2
+          filesystem: fat
         mounting_options:
           should_mount: 1
           mount_point: /boot

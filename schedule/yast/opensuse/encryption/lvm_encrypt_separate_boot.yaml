@@ -51,7 +51,7 @@ test_data:
         role: operating-system
         formatting_options:
           should_format: 1
-          filesystem: ext2
+          filesystem: fat
         mounting_options:
           should_mount: 1
           mount_point: /boot
