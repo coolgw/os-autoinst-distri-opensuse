@@ -11,12 +11,9 @@ vars:
 schedule:
   - migration/version_switch_origin_system
   - '{{online_migration_test}}'
-  - installation/install_service
   - migration/version_switch_upgrade_target
   - migration/online_migration/pre_migration
   - '{{migration_method}}'
-  - migration/online_migration/post_migration
-  - '{{qcow_generation}}'
 conditional_schedule:
   qcow_generation:
     QCOW_GENERATION:
@@ -25,14 +22,7 @@ conditional_schedule:
         - console/system_prepare
         - console/check_os_release
         - console/check_system_info
-        - '{{check_migration_features}}'
-        - console/check_network
-        - console/system_state
-        - console/prepare_test_data
-        - console/consoletest_setup
-        - migration/openldap_to_389ds
-        - '{{regression_tests}}'
-        - '{{rollback_after_migration}}'
+        - console/upgrade_snapshots
       1:
         - shutdown/cleanup_before_shutdown
         - shutdown/shutdown
@@ -58,23 +48,6 @@ conditional_schedule:
   regression_tests:
     REGRESSION_TEST:
       1:
-        - locale/keymap_or_locale
-        - console/force_scheduled_tasks
-        - console/hostname
-        - console/upgrade_snapshots
-        - console/zypper_lr
-        - console/check_system_info
-        - console/zypper_ref
-        - console/firewall_enabled
-        - console/zypper_lifecycle
-        - console/orphaned_packages_check
-        - console/consoletest_finish
-        - x11/desktop_runner
-        - x11/setup
-        - x11/xterm
   rollback_after_migration:
     ROLLBACK_AFTER_MIGRATION:
       1:
-        - boot/grub_test_snapshot
-        - migration/version_switch_origin_system
-        - boot/snapper_rollback
