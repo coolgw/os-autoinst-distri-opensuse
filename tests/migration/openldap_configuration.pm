@@ -23,7 +23,6 @@ sub run {
     # Install openldap since we need use slaptest tools
     zypper_call("in sssd sssd-tools sssd-ldap openldap2 openldap2-client");
 
-=begin
     # Disable and stop the nscd daemon because it conflicts with sssd
     disable_and_stop_service("nscd");
 
@@ -47,6 +46,7 @@ sub run {
         # for openqa debug
         permit_root_ssh;
     }
+=begin
     assert_script_run "cat ./slapd.conf";
     my $slapd_command = (is_sle('<=12-sp5')) ? "/usr/lib/openldap/slapd" : "slapd";
     assert_script_run "$slapd_command -h 'ldap:///' -f slapd.conf";
