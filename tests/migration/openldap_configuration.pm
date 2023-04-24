@@ -23,6 +23,7 @@ sub run {
     # Install openldap since we need use slaptest tools
     zypper_call("in sssd sssd-tools sssd-ldap openldap2 openldap2-client");
 
+=begin
     # Disable and stop the nscd daemon because it conflicts with sssd
     disable_and_stop_service("nscd");
 
@@ -64,6 +65,7 @@ sub run {
     # Prepare data file for migration
     assert_script_run "mkdir slapd.d";
     assert_script_run "slaptest -f slapd.conf -F ./slapd.d";
+=cut
 
 }
 
