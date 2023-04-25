@@ -161,6 +161,7 @@ sub run {
     #wegao first upload y2log
     assert_script_run 'save_y2logs /tmp/y2logs_clone.tar.bz2';
     upload_logs '/tmp/y2logs_clone.tar.bz2';
+    upload_logs '/var/log/snapper.log';
 
     my $waittime = 200 * get_var('TIMEOUT_SCALE', 1);
 

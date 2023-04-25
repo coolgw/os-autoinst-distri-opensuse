@@ -23,10 +23,10 @@ sub run {
     # Install openldap since we need use slaptest tools
     zypper_call("in sssd sssd-tools sssd-ldap openldap2 openldap2-client");
 
-=begin
     # Disable and stop the nscd daemon because it conflicts with sssd
     disable_and_stop_service("nscd");
 
+=begin
     # On newer environments, nsswitch.conf is located in /usr/etc
     # Copy it to /etc directory
     script_run 'f=/etc/nsswitch.conf; [ ! -f $f ] && cp /usr$f $f';
