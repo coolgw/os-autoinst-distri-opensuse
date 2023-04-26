@@ -32,6 +32,8 @@ conditional_schedule:
         - migration/online_migration/yast2_migration
       zypper:
         - migration/online_migration/zypper_migration
+        - shutdown/cleanup_before_shutdown
+        - shutdown/shutdown
   online_migration_test:
     ONLINE_MIGRATION:
       1:

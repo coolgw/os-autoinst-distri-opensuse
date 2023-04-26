@@ -16,6 +16,7 @@ sub run {
     my $self = shift;
     select_console('root-console');
     systemctl 'list-timers --all';
+    set_var("DESKTOP", "textmode");
     power_action('poweroff');
 }
 
