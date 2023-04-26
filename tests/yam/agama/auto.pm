@@ -8,7 +8,7 @@ use base 'y2_installbase';
 use strict;
 use warnings;
 
-use testapi 'assert_screen';
+use testapi;
 
 
 sub run {
