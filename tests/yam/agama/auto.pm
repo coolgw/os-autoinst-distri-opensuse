@@ -8,13 +8,15 @@ use base 'y2_installbase';
 use strict;
 use warnings;
 
-use testapi 'assert_screen';
+use testapi;
 
 
 sub run {
     assert_screen('agama-main-page', 120);
     assert_screen('agama-installing', 60);
-    assert_screen('welcome-to', 960);
+
+    my @tags = ("welcome-to", "login");
+    assert_screen \@tags, 960;
 }
 
 1;
