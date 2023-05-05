@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use testapi;
 use serial_terminal 'select_serial_terminal';
-use version_utils qw(is_sle is_leap is_tumbleweed is_sles4sap is_rt is_hpc);
+use version_utils qw(is_sle is_leap is_tumbleweed is_sles4sap is_rt is_hpc is_alp);
 use main_common 'is_desktop';
 
 sub run {
@@ -60,6 +60,15 @@ sub run {
         $checker{ID} = "opensuse-tumbleweed";
         $checker{CPE_NAME} = "cpe:/o:opensuse:tumbleweed:$checker{VERSION}";
         $checker{PRETTY_NAME} = $checker{NAME};
+    }
+
+    if (is_alp) {
+        if (get_var('AGAMA_AUTO') =~ /alp.*tw/) {
+            delete($checker{VERSION});
+            delete($checker{VERSION_ID});
+            $checker{NAME} = "openSUSE Tumbleweed";
+            $checker{ID} = "opensuse-tumbleweed";
+        }
     }
 
     my $release = script_output "cat /etc/os-release";

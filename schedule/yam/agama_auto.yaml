@@ -5,3 +5,4 @@ description: >
 schedule:
   - installation/bootloader_start
   - yam/agama/auto
+  - console/check_os_release
