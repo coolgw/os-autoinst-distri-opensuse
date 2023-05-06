@@ -13,6 +13,20 @@ use serial_terminal;
 
 
 sub run {
+
+	sleep 10;
+	save_screenshot;
+	sleep 10;
+	save_screenshot;
+	sleep 10;
+	save_screenshot;
+	sleep 10;
+	save_screenshot;
+
+	$testapi::password = 'linux';
+	select_serial_terminal;
+	script_run('journalctl -u agama-auto');
+
     assert_screen('agama-main-page', 120);
 
     #Installing screen sometimes can not captured
