@@ -14,7 +14,7 @@ use strict;
 use warnings;
 use testapi;
 use serial_terminal 'select_serial_terminal';
-use version_utils qw(is_sle is_leap is_tumbleweed is_sles4sap is_rt is_hpc);
+use version_utils qw(is_sle is_leap is_tumbleweed is_sles4sap is_rt is_hpc is_alp);
 use main_common 'is_desktop';
 
 sub run {
@@ -53,7 +53,7 @@ sub run {
         $checker{PRETTY_NAME} = $checker{NAME} . " " . $checker{VERSION};
         $checker{CPE_NAME} = "cpe:/o:opensuse:leap:$checker{VERSION}";
     }
-    if (is_tumbleweed) {
+    if (is_tumbleweed || (is_alp && get_var('AGAMA_AUTO') =~ /alp.*tw/)) {
         $checker{VERSION} = get_required_var('BUILD');
         $checker{VERSION_ID} = $checker{VERSION};
         $checker{NAME} = "openSUSE Tumbleweed";
