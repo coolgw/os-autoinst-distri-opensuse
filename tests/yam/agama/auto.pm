@@ -18,17 +18,10 @@ sub run {
     #Installing screen sometimes can not captured
     check_screen('agama-installing', 60);
 
-    $testapi::password = 'nots3cr3t';
+#    $testapi::password = 'nots3cr3t';
 
     my @tags = ("welcome-to", "login");
     assert_screen \@tags, 960;
-}
-
-#For debug, will remove once other parts review pass
-sub post_fail_hook {
-    $testapi::password = 'linux';
-    select_serial_terminal;
-    script_run('journalctl -u agama-auto');
 }
 
 1;
