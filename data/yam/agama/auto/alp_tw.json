@@ -1,14 +1,24 @@
 {
-   "software": {
-      "product": "Tumbleweed"
-   },
    "user": {
       "fullName": "Jane Doe",
       "password": "doe",
       "userName": "joe"
    },
    "root": {
-      "password": "nots3cr3t"
-   }
+      "password": "nots3cr3t",
+      "sshPublicKey": ""
+   },
+   "localization": {
+    "language": "en_US"
+   },
+   "software": {
+      "product": "Tumbleweed"
+   },
+   "storage": {
+    "devices": [
+      {
+        "name": "/dev/sda"
+      }
+    ]
+  }
 }
-
