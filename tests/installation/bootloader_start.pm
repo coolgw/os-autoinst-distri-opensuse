@@ -75,6 +75,7 @@ sub run {
         }
         else {
             record_info('bootloader');
+            record_info('pass', $testapi::password);
             $self->bootloader::run();
             return;
         }

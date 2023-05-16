@@ -150,7 +150,8 @@ sub load_testdir {
 sub set_defaults_for_username_and_password {
     if (get_var("LIVETEST")) {
         $testapi::username = "root";
-        $testapi::password = '';
+        #$testapi::password = '';
+        $testapi::password = 'aaaaa';
     }
     else {
         if (get_var('FLAVOR', '') =~ /SAP/ or get_var('SLE_PRODUCT', '') =~ /sles4sap/) {
@@ -167,7 +168,7 @@ sub set_defaults_for_username_and_password {
 
     if (get_var("LIVETEST") && (get_var("LIVECD") || get_var("PROMO"))) {
         $testapi::username = "linux";    # LiveCD account
-        $testapi::password = "";
+        $testapi::password = "baaaaaaa!!";
     }
 }
 
