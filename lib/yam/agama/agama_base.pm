@@ -20,4 +20,10 @@ sub post_fail_hook {
     save_and_upload_log('journalctl -u agama-auto', "/tmp/agama-auto-log.txt");
 }
 
+sub post_run_hook {
+    # In lib/main_common.pm setting LIVETEST & LIVECD will trigger logic which set password to NULL
+    # So we need set to correct password for later module test
+    $testapi::password = 'nots3cr3t';
+}
+
 1;
