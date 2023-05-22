@@ -24,7 +24,7 @@ sub run {
     my $os_release_name = Config::Tiny->read_string($os_release_output)->{_}->{NAME};
 
     record_info('os_release_name', $os_release_name);
-    assert_equals($product, $os_release_name, 'Wrong product NAME in /etc/os-release');
+    assert_equals("\"" . $product . "\"", $os_release_name, 'Wrong product NAME in /etc/os-release');
 }
 
 1;
