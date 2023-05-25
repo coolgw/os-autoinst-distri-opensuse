@@ -52,8 +52,6 @@
       <pattern>gateway_server</pattern>
       <pattern>gnome_basic</pattern>
       <pattern>gnome_basis</pattern>
-      <pattern>kvm_server</pattern>
-      <pattern>kvm_tools</pattern>
       <pattern>lamp_server</pattern>
       <pattern>mail_server</pattern>
       <pattern>minimal_base</pattern>
