@@ -89,7 +89,7 @@ sub prepare_parmfile {
         $params .= " info=" . create_infofile("install: $instsrc");
     }
     else {
-        $params .= " install=" . $instsrc . $repo . " ";
+       # $params .= " install=" . $instsrc . $repo . " ";
     }
 
     if (get_var('UPGRADE')) {
