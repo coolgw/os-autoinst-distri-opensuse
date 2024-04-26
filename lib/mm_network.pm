@@ -107,6 +107,8 @@ sub configure_default_gateway {
     my (%args) = @_;
     my $is_nm = $args{is_nm} // is_networkmanager();
     my $device = $args{device} // '\S';
+    assert_script_run "ip addr";
+    assert_script_run "nmcli -t -f DEVICE,NAME c";
     if ($is_nm) {
         my $nm_id;
         # When $device is not specified grep just does nothing and first connection is selected
