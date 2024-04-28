@@ -303,94 +303,9 @@ sub run {
         $self->wait_boot;
     }
 
-    enable_tpm_slb9670 if ($is_ima && get_var('MACHINE') =~ /RPi/);
-
-    if (get_var('LTP_COMMAND_FILE') && check_var_array('LTP_DEBUG', 'crashdump')) {
-        select_serial_terminal;
-        configure_service(yast_interface => 'cli');
-    }
-
     # Initialize VNC console now to avoid login attempts on frozen system
     select_console('root-console') if get_var('LTP_DEBUG');
     select_serial_terminal;
-    export_ltp_env;
-
-    if (script_output('cat /sys/module/printk/parameters/time') eq 'N') {
-        script_run('echo 1 > /sys/module/printk/parameters/time');
-        $grub_param .= ' printk.time=1';
-    }
-
-    # check kGraft if KGRAFT=1
-    if (check_var("KGRAFT", '1') && !check_var('REMOVE_KGRAFT', '1')) {
-        my $lp_tag = is_sle('>=15-sp4') ? 'lp' : 'lp-';
-        assert_script_run("uname -v | grep -E '(/kGraft-|/${lp_tag})'");
-    }
-
-    upload_logs('/boot/config-$(uname -r)', failok => 1);
-    set_zypper_lock_timeout(300);
-    add_we_repo_if_available;
-
-    if ($inst_ltp =~ /git/i) {
-        install_build_dependencies;
-        install_runtime_dependencies;
-
-        # bsc#1024050 - Watch for Zombies
-        script_run('(pidstat -p ALL 1 > /tmp/pidstat.txt &)');
-        install_from_git();
-
-        install_runtime_dependencies_network;
-        install_debugging_tools;
-    }
-    else {
-        add_ltp_repo;
-        install_from_repo();
-        if (get_var("LTP_GIT_URL")) {
-            install_build_dependencies;
-            install_selected_from_git;
-        }
-    }
-
-    log_versions 1;
-
-    zypper_call('in efivar') if is_sle('12+') || is_opensuse;
-
-    $grub_param .= ' console=hvc0' if (get_var('ARCH') eq 'ppc64le');
-    $grub_param .= ' console=ttysclp0' if (get_var('ARCH') eq 's390x');
-    if (!is_sle('<12') && defined $grub_param) {
-        add_grub_cmdline_settings($grub_param, update_grub => 1);
-    }
-
-    add_custom_grub_entries if (is_sle('12+') || is_opensuse || is_transactional) && !is_jeos;
-
-    if (is_xen_host) {
-        my $version = get_var('VERSION');
-        assert_script_run("grub2-set-default 'SLES ${version}, with Xen hypervisor'");
-        my $serial_console = get_serial_console;
-        add_grub_xen_replace_cmdline_settings("console=${serial_console},115200n", update_grub => 1);
-    }
-
-    setup_network unless is_transactional;
-
-    # we don't run LVM tests in 32bit, thus not generating the runtest file
-    # for 32 bit packages
-    if (!is_sle('<12')) {
-        prepare_ltp_env();
-        assert_script_run('generate_lvm_runfile.sh');
-    }
-
-    (is_jeos && is_sle('>15')) && zypper_call 'in system-user-bin system-user-daemon';
-
-    # boot_ltp will schedule the tests and shutdown_ltp if there is a command
-    # file
-    if (get_var('LTP_INSTALL_REBOOT') || (is_transactional && $cmd_file)) {
-        power_action('reboot', textmode => 1) unless is_jeos;
-        loadtest_kernel 'boot_ltp';
-    } elsif ($cmd_file) {
-        assert_secureboot_status(1) if get_var('SECUREBOOT');
-        prepare_ltp_env() if (is_sle('<12'));
-        init_ltp_tests($cmd_file);
-        schedule_tests($cmd_file);
-    }
 }
 
 sub post_fail_hook {
