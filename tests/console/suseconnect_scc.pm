@@ -41,6 +41,8 @@ sub run {
     if (is_transactional) {
         trup_call('register' . $cmd);
         trup_call('--continue run zypper --gpg-auto-import-keys refresh') if is_staging;
+        # Currently only micro6.0 support SL-Micro-Extras
+        trup_call('register -p SL-Micro-Extras/' . get_var('VERSION') . '/' . get_var('ARCH')) if (get_var('VERSION') eq '6.0');
         process_reboot(trigger => 1);
     }
     else {
