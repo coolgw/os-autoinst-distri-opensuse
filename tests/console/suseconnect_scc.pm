@@ -14,6 +14,7 @@ use utils qw(zypper_call script_retry script_output_retry);
 use version_utils qw(is_sle is_jeos is_sle_micro is_transactional is_staging);
 use registration qw(register_addons_cmd verify_scc investigate_log_empty_license);
 use transactional qw(trup_call process_reboot);
+use registration;
 
 sub run {
     return if get_var('HDD_SCC_REGISTERED');
@@ -42,7 +43,8 @@ sub run {
         trup_call('register' . $cmd);
         trup_call('--continue run zypper --gpg-auto-import-keys refresh') if is_staging;
         # Currently only micro6.0 support SL-Micro-Extras
-        trup_call('register -p SL-Micro-Extras/' . get_var('VERSION') . '/' . get_var('ARCH')) if (get_var('VERSION') eq '6.0');
+        #trup_call('register -p SL-Micro-Extras/' . get_var('VERSION') . '/' . get_var('ARCH')) if (get_var('VERSION') eq '6.0');
+	add_suseconnect_product('SL-Micro-Extras');
         process_reboot(trigger => 1);
     }
     else {
