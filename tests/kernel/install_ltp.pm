@@ -294,6 +294,24 @@ sub setup_network {
     }
 }
 
+sub setup_localhost_sshd {
+
+    assert_script_run "ssh-keygen -t rsa -P '' -C 'root\@localhost' -f /root/.ssh/id_rsa";
+    assert_script_run "cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys";
+    assert_script_run "ssh-keyscan -H localhost >> /root/.ssh/known_hosts";
+
+    permit_root_ssh;
+
+}
+
+sub setup_ftp {
+
+    #my $results = script_run("grep 'write_enable=NO' /etc/vsftpd.conf");
+    #if
+    assert_script_run("sed -i 's/^write_enable.*\$/write_enable=YES/' /etc/vsftpd.conf");
+    assert_script_run("systemctl restart vsftpd");
+}
+
 sub run {
     my $self = shift;
     my $inst_ltp = get_var 'INSTALL_LTP';
@@ -388,6 +406,10 @@ sub run {
     }
 
     setup_network;
+
+    setup_localhost_sshd;
+
+    setup_ftp;
 
     # we don't run LVM tests in 32bit, thus not generating the runtest file
     # for 32 bit packages

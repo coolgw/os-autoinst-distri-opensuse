@@ -49,6 +49,8 @@ sub run {
     # Initialize VNC console now to avoid login attempts on frozen system
     select_console('root-console') if get_var('LTP_DEBUG');
     select_serial_terminal;
+#debug
+assert_script_run("ln -f -s /usr/bin/lftp /usr/bin/ftp");
 
     # Debug code for poo#81142
     script_run('gzip -9 </dev/fb0 >framebuffer.dat.gz');
