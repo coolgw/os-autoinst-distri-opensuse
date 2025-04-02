@@ -20,6 +20,8 @@ sub run {
     assert_script_run('./configure 2>&1 | tee /tmp/configure.log; if [ ${PIPESTATUS[0]} -ne 0 ]; then false; fi', 600);
     assert_script_run('make -j$(getconf _NPROCESSORS_ONLN) 2>&1 | tee /tmp/make.log; if [ ${PIPESTATUS[0]} -ne 0 ]; then false; fi', 3600);
     assert_script_run('./gawk \'{ print }\' /etc/hostname');
+    upload_logs '/tmp/make.log';
+    upload_logs '/tmp/configure.log';
     save_screenshot;
     clear_console;
 }
