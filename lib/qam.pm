@@ -121,6 +121,8 @@ sub add_test_repositories {
         }
     }
 
+    zypper_call('ar -G ' . get_var('SDK_TEST_REPOS') . ' sdk_test_repos') if get_var('SDK_TEST_REPOS');
+
     # refresh repositories, inf 106 is accepted because repositories with test
     # can be removed before test start
     zypper_call('ref', timeout => 1400, exitcode => [0, 106]);
