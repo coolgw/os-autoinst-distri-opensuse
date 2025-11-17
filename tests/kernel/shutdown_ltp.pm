@@ -10,6 +10,7 @@ use 5.018;
 use base 'opensusebasetest';
 use testapi;
 use utils;
+use version_utils;
 use LTP::utils;
 use power_action_utils 'power_action';
 use upload_system_log;
@@ -43,6 +44,9 @@ sub run {
     }
 
     upload_system_logs();
+
+    # Also cleanup machine-id to avoid duplicate ipv6 link local address in mutli-machine setup.
+    assert_script_run('truncate -s 0 /etc/machine-id /var/lib/dbus/machine-id') unless is_sle('<=15-SP2');
 
     power_action('poweroff');
 }
