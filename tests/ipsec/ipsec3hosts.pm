@@ -68,7 +68,8 @@ sub run ($self) {
         assert_script_run("ping -c 8 $setup->{right_ip}");
         assert_script_run("ping6 -s 1300 -c 8 $setup->{right_ip}");
         barrier_wait 'IPSEC_SET_MTU_DONE';
-        assert_script_run("ping6 -c 8 $setup->{right_ip}");
+	assert_script_run("ping6 -c 8 $setup->{right_ip}");
+	# assert_script_run("ping -c  1 9.9.9.19");
         assert_script_run("ping6 -s 1300 -c 8 $setup->{right_ip}");
         barrier_wait 'IPSEC_TUNNEL_MODE_CHECK_DONE';
         $self->{ipsec_mode} = "transport";
