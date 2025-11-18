@@ -63,7 +63,6 @@ sub destroy_test_barriers {
     barrier_destroy('IPSEC_TUNNEL_MODE_CHECK_DONE');
     barrier_destroy('IPSEC_TRANSPORT_MODE_SETUP_DONE');
     barrier_destroy('IPSEC_TRANSPORT_MODE_CHECK_DONE');
-    barrier_destroy('IPSEC_TEST_DONE');
 }
 
 sub check_ipv6_addr {
@@ -120,12 +119,10 @@ sub post_fail_hook {
     my ($self, $args) = @_;
     export_logs();
     record_info('INTF STATUS', script_output('ip -s link show', proceed_on_failure => 1));
-    barrier_wait 'IPSEC_TEST_DONE';
 }
 sub post_run_hook {
     my ($self, $args) = @_;
     export_logs();
     record_info('INTF STATUS', script_output('ip -s link show', proceed_on_failure => 1));
-    barrier_wait 'IPSEC_TEST_DONE';
 }
 1;

@@ -12,8 +12,6 @@ use serial_terminal 'select_serial_terminal';
 use utils;
 use lockapi;
 use network_utils;
-use Utils::Logging;
-use Utils::Systemd qw(systemctl disable_and_stop_service);
 
 
 sub run ($self) {
@@ -102,13 +100,7 @@ sub run ($self) {
         script_run("timeout 20 tcpdump -i $dev0");
         assert_script_run("ip l s mtu 1300 dev $dev1");
         barrier_wait 'IPSEC_SET_MTU_DONE';
-        record_info('IP ADDRESS', script_output('ip a', proceed_on_failure => 1));
-        record_info('INTF STATUS', script_output('ip -s link show', proceed_on_failure => 1));
         script_run("timeout 20 tcpdump -i $dev0");
-        record_info('INTF STATUS', script_output('ip -s link show', proceed_on_failure => 1));
-        record_info('IP ADDRESS', script_output('ip a', proceed_on_failure => 1));
-        record_info('IP ADDRESS', script_output('ip a', proceed_on_failure => 1));
-
         barrier_wait 'IPSEC_TUNNEL_MODE_CHECK_DONE';
         barrier_wait 'IPSEC_TRANSPORT_MODE_SETUP_DONE';
         script_run("timeout 20 tcpdump -i $dev0");
@@ -133,12 +125,7 @@ sub run ($self) {
         barrier_wait 'IPSEC_TUNNEL_MODE_SETUP_DONE';
         script_run("timeout 20 tcpdump -i $dev0");
         barrier_wait 'IPSEC_SET_MTU_DONE';
-        record_info('IP ADDRESS', script_output('ip a', proceed_on_failure => 1));
-        record_info('INTF STATUS', script_output('ip -s link show', proceed_on_failure => 1));
         script_run("timeout 20 tcpdump -i $dev0");
-        record_info('IP ADDRESS', script_output('ip a', proceed_on_failure => 1));
-        record_info('INTF STATUS', script_output('ip -s link show', proceed_on_failure => 1));
-        record_info('IP ADDRESS', script_output('ip a', proceed_on_failure => 1));
         barrier_wait 'IPSEC_TUNNEL_MODE_CHECK_DONE';
         $self->{ipsec_mode} = "transport";
         $self->config_ipsec($ipsec_setting_right);
