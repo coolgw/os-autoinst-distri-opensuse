@@ -17,6 +17,7 @@
       <li><a href="#Global-Variables">Global Variables</a></li>
       <li><a href="#exec_csync">exec_csync</a></li>
       <li><a href="#add_file_in_csync">add_file_in_csync</a></li>
+      <li><a href="#get_cluster_info">get_cluster_info</a></li>
       <li><a href="#get_cluster_name">get_cluster_name</a></li>
       <li><a href="#get_hostname">get_hostname</a></li>
       <li><a href="#get_node_to_join">get_node_to_join</a></li>
@@ -33,6 +34,7 @@
       <li><a href="#ensure_process_running">ensure_process_running</a></li>
       <li><a href="#ensure_resource_running">ensure_resource_running</a></li>
       <li><a href="#ensure_dlm_running">ensure_dlm_running</a></li>
+      <li><a href="#execute_crm_resource_refresh_and_check">execute_crm_resource_refresh_and_check</a></li>
       <li><a href="#write_tag">write_tag</a></li>
       <li><a href="#read_tag">read_tag</a></li>
       <li><a href="#block_device_real_path">block_device_real_path</a></li>
@@ -41,6 +43,7 @@
       <li><a href="#rsc_cleanup">rsc_cleanup</a></li>
       <li><a href="#ha_export_logs">ha_export_logs</a></li>
       <li><a href="#check_cluster_state">check_cluster_state</a></li>
+      <li><a href="#check_online_nodes">check_online_nodes</a></li>
       <li><a href="#wait_until_resources_stopped">wait_until_resources_stopped</a></li>
       <li><a href="#wait_until_resources_started">wait_until_resources_started</a></li>
       <li><a href="#wait_for_idle_cluster">wait_for_idle_cluster</a></li>
@@ -50,8 +53,33 @@
       <li><a href="#add_lock_mgr">add_lock_mgr</a></li>
       <li><a href="#is_not_maintenance_update">is_not_maintenance_update</a></li>
       <li><a href="#activate_ntp">activate_ntp</a></li>
+      <li><a href="#script_output_retry_check">script_output_retry_check</a></li>
+      <li><a href="#collect_sbd_delay_parameters">collect_sbd_delay_parameters</a></li>
       <li><a href="#calculate_sbd_start_delay">calculate_sbd_start_delay</a></li>
+      <li><a href="#setup_sbd_delay">setup_sbd_delay</a></li>
+      <li><a href="#set_sbd_service_timeout">set_sbd_service_timeout</a></li>
       <li><a href="#check_iscsi_failure">check_iscsi_failure</a></li>
+      <li><a href="#cluster_status_matches_regex">cluster_status_matches_regex</a></li>
+      <li><a href="#crm_maintenance_status">crm_maintenance_status</a></li>
+      <li><a href="#crm_wait_for_maintenance">crm_wait_for_maintenance</a></li>
+      <li><a href="#crm_check_resource_location">crm_check_resource_location</a></li>
+      <li><a href="#generate_lun_list">generate_lun_list</a></li>
+      <li><a href="#set_cluster_parameter">set_cluster_parameter</a></li>
+      <li><a href="#show_cluster_parameter">show_cluster_parameter</a></li>
+      <li><a href="#prepare_console_for_fencing">prepare_console_for_fencing</a></li>
+      <li><a href="#crm_get_failcount">crm_get_failcount</a></li>
+      <li><a href="#crm_wait_failcount">crm_wait_failcount</a></li>
+      <li><a href="#crm_resources_by_class">crm_resources_by_class</a></li>
+      <li><a href="#crm_resource_locate">crm_resource_locate</a></li>
+      <li><a href="#crm_resource_meta_show">crm_resource_meta_show</a></li>
+      <li><a href="#crm_resource_meta_set">crm_resource_meta_set</a></li>
+      <li><a href="#crm_list_options">crm_list_options</a></li>
+      <li><a href="#get_sbd_devices">get_sbd_devices</a></li>
+      <li><a href="#parse_sbd_metadata">parse_sbd_metadata</a></li>
+      <li><a href="#list_configured_sbd">list_configured_sbd</a></li>
+      <li><a href="#sbd_device_report">sbd_device_report</a></li>
+      <li><a href="#get_fencing_type">get_fencing_type</a></li>
+      <li><a href="#check_crm_nonroot">check_crm_nonroot</a></li>
     </ul>
   </li>
 </ul><h1>lib/hacluster.pm</h1>
@@ -76,6 +104,21 @@
 <li><p><b>$crm_mon_cmd</b>: crm_mon (crm monitoring) command</p>
 
 </li>
+<li><p><b>$corosync_token</b>: command to filter the value of <code>runtime.config.totem.token</code> from the output of <code>corosync-cmapctl</code></p>
+
+</li>
+<li><p><b>$corosync_consensus</b>: command to filter the value of <code>runtime.config.totem.consensus</code> from the output of <code>corosync-cmapctl</code></p>
+
+</li>
+<li><p><b>$sbd_watchdog_timeout</b>: command to extract the value of <code>SBD_WATCHDOG_TIMEOUT</code> from <code>/etc/sysconfig/sbd</code></p>
+
+</li>
+<li><p><b>$sbd_delay_start</b>: command to extract the value of <code>SBD_DELAY_START</code> from <code>/etc/sysconfig/sbd</code></p>
+
+</li>
+<li><p><b>$pcmk_delay_max</b>: command to get the value of the <code>pcmd_delay_max</code> parameter from the STONITH resource in the cluster configuration.</p>
+
+</li>
 </ul>
 
 <h2 id="exec_csync">exec_csync</h2>
@@ -89,6 +132,12 @@
 <pre><code>add_file_in_csync( value =&gt; &#39;/path/to/file&#39;, [ conf_file =&gt; &#39;/path/to/csync2.cfg&#39; ] );</code></pre>
 
 <p>Adds <i>/path/to/file</i> to a csync2 configuration file in SUT. Path to add must be passed with the named argument <b>value</b>, while csync2 configuration file can be passed on the named argument <b>conf_file</b> (defaults to <i>/etc/csync2/csync2.cfg</i>). Returns true on success or croaks if command execution fails in SUT.</p>
+
+<h2 id="get_cluster_info">get_cluster_info</h2>
+
+<p>get_cluster_info();</p>
+
+<p>Returns a hashref containing the info parsed from the CLUSTER_INFOS variable. This does not reflect the current state of the cluster but the intended steady state once the LUNs are configured and the nodes have joined.</p>
 
 <h2 id="get_cluster_name">get_cluster_name</h2>
 
@@ -186,6 +235,12 @@
 
 <p>Checks that the <code>dlm</code> resource is running in the cluster, and that its associated process (<b>dlm_controld</b>) is running in SUT. Returns 0 if process is running or croaks on error.</p>
 
+<h2 id="execute_crm_resource_refresh_and_check">execute_crm_resource_refresh_and_check</h2>
+
+<pre><code>execute_crm_resource_refresh_and_check();</code></pre>
+
+<p>Execute <code>crm resource refresh</code> for specified <code>resource</code> on <code>instance_hostname</code> and check the <code>crm_failcount</code> returns <code>value=0</code>. Check no <b>failover</b> happens and state of cluster resources is healthy.</p>
+
 <h2 id="write_tag">write_tag</h2>
 
 <pre><code>write_tag( $tag );</code></pre>
@@ -226,15 +281,47 @@
 
 <pre><code>ha_export_logs();</code></pre>
 
-<p>Upload HA-relevant logs from SUT. These include: crm configuration, cluster bootstrap log, corosync configuration, <b>hb_report</b>, list of installed packages, list of iSCSI devices, <i>/etc/mdadm.conf</i>, support config and <b>y2logs</b>. If available, logs from the <b>HAWK</b> test, from <b>CTS</b> and from <b>HANA</b> are also included.</p>
+<p>Upload HA-relevant logs from SUT. These include: crm configuration, cluster bootstrap log, corosync configuration, <b>crm report</b>, list of installed packages, list of iSCSI devices, <i>/etc/mdadm.conf</i>, support config and <b>y2logs</b>. If available, logs from the <b>HAWK</b> test, from <b>CTS</b> and from <b>HANA</b> are also included.</p>
 
 <h2 id="check_cluster_state">check_cluster_state</h2>
 
 <pre><code>check_cluster_state( [ proceed_on_failure =&gt; 1 ] );</code></pre>
 
-<p>Check state of the cluster. This will call <b>$crm_mon_cmd</b> to check the current status of the cluster, check for inactive resources and for <span style="white-space: nowrap;">partition with quorum</span> in the output of <b>$crm_mon_cmd</b>, check the reported number of nodes in the output of <code>crm node list</code> and <b>$crm_mon_cmd</b> is the same and run <code>crm_verify -LV</code>.</p>
+<p>Checks the state of the cluster. Calls <b>$crm_mon_cmd</b> and inspects its output checking:</p>
 
-<p>With the named argument <b>proceed_on_failure</b> set to 1, the method will use <b>script_run()</b> and attempt to run all commands in SUT without checking for errors. Without it, the method uses <b>assert_script_run()</b> and will croak on failure.</p>
+<dl>
+
+<dt id="The-current-state-of-the-cluster">The current state of the cluster.</dt>
+<dd>
+
+</dd>
+<dt id="Inactive-resources">Inactive resources.</dt>
+<dd>
+
+</dd>
+<dt id="partition-with-quorum"><span style="white-space: nowrap;">partition with quorum</span></dt>
+<dd>
+
+</dd>
+</dl>
+
+<p>Checks that the reported number of nodes in the output of <code>crm node list</code> and <b>$crm_mon_cmd</b> is the same by calling <code>check_online_nodes</code>.</p>
+
+<p>And runs <code>crm_verify -LV</code>.</p>
+
+<p>With the named argument <b>proceed_on_failure</b> set to 1, the function will use <b>script_run()</b> and attempt to run all commands in SUT without checking for errors. Without it, the method uses <b>assert_script_run()</b> and will croak on failure.</p>
+
+<h2 id="check_online_nodes">check_online_nodes</h2>
+
+<pre><code>check_online_nodes( [ proceed_on_failure =&gt; 1 ] );</code></pre>
+
+<p>Checks that the reported number of nodes in the output of <code>crm node list</code> and <b>$crm_mon_cmd</b> is the same.</p>
+
+<p>With the named argument <b>proceed_on_failure</b> set to 1, the function will only report the number of nodes configured and online. Otherwise it will die when the number of configured nodes is different than the number of online nodes, or if it fails to get any of these numbers.</p>
+
+<p>This function is not exported and it&#39;s used only by <code>check_cluster_state</code>.</p>
+
+<p>This function requires crmsh-4.4.2 or newer.</p>
 
 <h2 id="wait_until_resources_stopped">wait_until_resources_stopped</h2>
 
@@ -252,7 +339,7 @@
 
 <pre><code>wait_for_idle_cluster( [ timeout =&gt; $timeout ] );</code></pre>
 
-<p>Use `cs_wait_for_idle` to wait until the cluster is idle before continuing the tests. Supply a timeout with the named argument <b>timeout</b> (defaults to 120 seconds). This timeout is scaled by the factor specified in the <b>TIMEOUT_SCALE</b> setting. Croaks on timeout.</p>
+<p>Use <code>cs_wait_for_idle</code> to wait until the cluster is idle before continuing the tests. Supply a timeout with the named argument <b>timeout</b> (defaults to 120 seconds). This timeout is scaled by the factor specified in the <b>TIMEOUT_SCALE</b> setting. Dies on timeout.</p>
 
 <h2 id="get_lun">get_lun</h2>
 
@@ -274,15 +361,17 @@
 
 <h2 id="add_lock_mgr">add_lock_mgr</h2>
 
-<pre><code>add_lock_mgr( $lock_manager );</code></pre>
+<pre><code>add_lock_mgr( $lock_manager, [ force =&gt; bool ] );</code></pre>
 
 <p>Configures a <b>$lock_manager</b> resource in the cluster configuration on SUT. <b>$lock_mgr</b> usually is either <b>clvmd</b> or <b>lvmlockd</b>, but any other cluster primitive could work as well.</p>
+
+<p>Takes a second named argument <b>force</b> which if set to true will add <code>--force</code> to the <b>crmsh</b> command. Should be used with care. Defaults to false.</p>
 
 <h2 id="is_not_maintenance_update">is_not_maintenance_update</h2>
 
 <pre><code>is_not_maintenance_update( $package );</code></pre>
 
-<p>Checks if the package specified in <b>$package</b> is not targeted by a maintenance update. Returns true if the package is not targeted, i.e., package name does not appear in the <b>BUILD</b> setting and the <b>MAINTENANCE</b> setting is active, or false in all other cases.</p>
+<p>Checks if the package specified in <b>$package</b> is not targeted by a maintenance update. Returns true if the package is not targeted, i.e., <b>MAINTENANCE</b> setting is active and package name does not appear in the <b>BUILD</b> setting nor is it in the list of packages in the related <b>INCIDENT_ID</b>. Returns false in all other cases. Besides the package <b>$package</b>, it also checks for <b>kernel</b> in the <b>BUILD</b> setting and the list of packages, as the tests should always run with updates to the kernel.</p>
 
 <h2 id="activate_ntp">activate_ntp</h2>
 
@@ -290,17 +379,422 @@
 
 <p>Enables NTP service in SUT.</p>
 
+<h2 id="script_output_retry_check">script_output_retry_check</h2>
+
+<pre><code>script_output_retry_check(cmd=&gt;$cmd, regex_string=&gt;$regex_sring, [retry=&gt;$retry, sleep=&gt;$sleep, ignore_failure=&gt;$ignore_failure]);</code></pre>
+
+<p>Executes command via <code>script_output</code> subroutine and makes a sanity check against a regular expression. Command output is returned after success, otherwise the command is retried a defined number of times. Test dies after last unsuccessfull retry.</p>
+
+<p><b>$cmd</b> command being executed.</p>
+
+<p><b>$regex_string</b> regular expression to check output against.</p>
+
+<p><b>$retry</b> number of retries. Defaults to <code>5</code>.</p>
+
+<p><b>$sleep</b> sleep time between retries. Defaults to <code>10s</code>.</p>
+
+<p><b>$ignore_failure</b> do not kill the test upon failure.</p>
+
+<pre><code>Example: script_output_retry_check(cmd=&gt;&#39;hostname&#39;, regex_string=&gt;&#39;^node01$&#39;, retry=&gt;&#39;100&#39;, sleep=&gt;&#39;60&#39;, ignore_failure=&gt;&#39;1&#39;);</code></pre>
+
+<h2 id="collect_sbd_delay_parameters">collect_sbd_delay_parameters</h2>
+
+<pre><code>collect_sbd_delay_parameters();</code></pre>
+
+<p>Collects a series of SBD parameters from the SUT and returns them in a HASH format. Commands are collected from <code>/etc/sysconfig/sbd</code> or by filtering the output of <code>corosync-cmapctl</code>. Due to possible race conditions, all these parameters are collected using the helper function <code>script_output_retry_check</code> also defined in this library.</p>
+
 <h2 id="calculate_sbd_start_delay">calculate_sbd_start_delay</h2>
 
-<pre><code>calculate_sbd_start_delay();</code></pre>
+<pre><code>calculate_sbd_start_delay(\%sbd_parameters);</code></pre>
 
-<p>Calculates start time delay after node is fenced. Prevents cluster failure if fenced node restarts too quickly. Delay time is used either if specified in sbd config variable &quot;SBD_DELAY_START&quot; or calculated: &quot;corosync_token + corosync_consensus + SBD_WATCHDOG_TIMEOUT * 2&quot; Variables &#39;corosync_token&#39; and &#39;corosync_consensus&#39; are converted to seconds.</p>
+<p>Calculates start time delay after node is fenced. This delay time is used as a wait time after a node fence to prevent cluster failures in cases where the fenced node restarts too quickly. Delay time is used either if specified in sbd config variable <b>SBD_DELAY_START</b> or calculated by the formula:</p>
+
+<p>corosync token timeout + consensus timeout + pcmk_delay_max + msgwait</p>
+
+<p>Variables <b>corosync_token</b> and <b>corosync_consensus</b> are converted to seconds. For diskless SBD pcmk_delay_max is set to static 30s.</p>
+
+<pre><code>%sbd_parameters = {
+    &#39;corosync_token&#39; =&gt; &lt;runtime.config.totem.token&gt;,
+    &#39;corosync_consensus&#39; =&gt; &lt;runtime.config.totem.consensus&gt;,
+    &#39;sbd_watchdog_timeout&#39; =&gt; &lt;SBD_WATCHDOG_TIMEOUT&gt;,
+    &#39;sbd_delay_start&#39; =&gt; &lt;SBD_DELAY_START&gt;,
+    &#39;pcmk_delay_max&#39; =&gt; &lt;pcmk_delay_max&gt;
+}</code></pre>
+
+<p>If <code>%sbd_parameters</code> argument is omitted, then function will try to obtain the values from the configuration files. See <code>collect_sbd_delay_parameters</code></p>
+
+<h2 id="setup_sbd_delay">setup_sbd_delay</h2>
+
+<pre><code>setup_sbd_delay()</code></pre>
+
+<p>This function configures in the SUT the <b>SBD_DELAY_START</b> parameter in <code>/etc/sysconfig/sbd</code> to whatever value is supplied in the setting <b>HA_SBD_START_DELAY</b>, and then call <code>calculate_sbd_start_delay</code> and <code>set_sbd_service_timeout</code> to set the service timeout for the SBD service in the SUT. It returns the calculated delay. Will croak if any of the commands sent to the SUT fail.</p>
+
+<h2 id="set_sbd_service_timeout">set_sbd_service_timeout</h2>
+
+<pre><code>set_sbd_service_timeout($service_timeout)</code></pre>
+
+<p>Set the service timeout for the SBD service in the SUT to the number of seconds passed as argument.</p>
+
+<p>This is accomplished by configuring a systemd override file for the SBD service.</p>
+
+<p>If the override file exists, the function will edit it and replace the timeout there, otherwise it creates the file from scratch.</p>
 
 <h2 id="check_iscsi_failure">check_iscsi_failure</h2>
 
 <pre><code>check_iscsi_failure();</code></pre>
 
 <p>Workaround for bsc#1129385, checks system log for iSCSI connection failures, if necessary restarts iscsi and pacemaker service</p>
+
+<h2 id="cluster_status_matches_regex">cluster_status_matches_regex</h2>
+
+<p>Check crm status output against a hardcode regular expression in order to check the cluster health</p>
+
+<dl>
+
+<dt id="SHOW_CLUSTER_STATUS---Output-from-crm-status-command"><b>SHOW_CLUSTER_STATUS</b> - Output from &#39;crm status&#39; command</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h2 id="crm_maintenance_status">crm_maintenance_status</h2>
+
+<pre><code>crm_maintenance_status();</code></pre>
+
+<p>Check maintenance mode status. Returns true (maintenance active) or false (maintenance inactive). Croaks if unknown status is received.</p>
+
+<h2 id="crm_wait_for_maintenance">crm_wait_for_maintenance</h2>
+
+<pre><code>crm_wait_for_maintenance(target_state=&gt;$target_state, [loop_sleep=&gt;$loop_sleep, timeout=&gt;$timeout]);</code></pre>
+
+<p>Wait for maintenance to be turned on or off. Croaks on timeout.</p>
+
+<ul>
+
+<p><b>target_state</b> Target state of the maintenance mode (true/false)</p>
+
+<p><b>loop_sleep</b> Override default sleep value between checks</p>
+
+<p><b>timeout</b> Override default timeout value</p>
+
+</ul>
+
+<h2 id="crm_check_resource_location">crm_check_resource_location</h2>
+
+<pre><code>crm_check_resource_location(resource=&gt;$resource, [wait_for_target=&gt;$wait_for_target, timeout=&gt;$timeout]);</code></pre>
+
+<p>Checks current resource location, returns hostname of the node. Can be used to wait for desired state Eg: after failover. Croaks upon timeout.</p>
+
+<ul>
+
+<p><b>wait_for_target</b> Target location of the resource specified - physical hostname</p>
+
+<p><b>resource</b> Resource to check</p>
+
+<p><b>timeout</b> Override default timeout value</p>
+
+</ul>
+
+<h2 id="generate_lun_list">generate_lun_list</h2>
+
+<pre><code>generate_lun_list()</code></pre>
+
+<p>This generates the information that nodes need to use iSCSI. This is stored in /tmp/$cluster_name-lun.list where nodes can get it using scp.</p>
+
+<h2 id="set_cluster_parameter">set_cluster_parameter</h2>
+
+<pre><code>set_cluster_parameter(resource=&gt;&#39;Totoro&#39;, parameter=&gt;&#39;neighbour&#39;, value=&gt;&#39;my&#39;);</code></pre>
+
+<p>Manage HA cluster parameter using crm shell.</p>
+
+<ul>
+
+<li><p><b>resource</b>: Resource containing parameter</p>
+
+</li>
+<li><p><b>parameter</b>: Parameter name</p>
+
+</li>
+<li><p><b>value</b>: Target parameter value</p>
+
+</li>
+</ul>
+
+<h2 id="show_cluster_parameter">show_cluster_parameter</h2>
+
+<pre><code>show_cluster_parameter(resource=&gt;&#39;Totoro&#39;, parameter=&gt;&#39;neighbour&#39;);</code></pre>
+
+<p>Show cluster parameter value using CRM shell.</p>
+
+<ul>
+
+<li><p><b>resource</b>: Resource containing parameter</p>
+
+</li>
+<li><p><b>parameter</b>: Parameter name</p>
+
+</li>
+</ul>
+
+<h2 id="prepare_console_for_fencing">prepare_console_for_fencing</h2>
+
+<pre><code>prepare_console_for_fencing();</code></pre>
+
+<p>Some HA tests modules will cause a node to fence. In these cases, the tests will need to assert a <b>grub2</b> or <b>bootmenu</b> screen, so the modules will need to select the <code>root-console</code> before any calls to <code>assert_screen</code>. On some systems, a simple call to <code>select_console &#39;root-console&#39;</code> will not work as the console could be &quot;dirty&quot; with messages obscuring the root prompt. This function will pre-select the console without asserting anything on the screen, clear it, and then select it normally.</p>
+
+<p>On PVM setup, serial connection may lose if jobs running too long from ssh termial, so re-connect it after switching back to root-console</p>
+
+<h2 id="crm_get_failcount">crm_get_failcount</h2>
+
+<pre><code>crm_get_failcount(crm_resource=&gt;&#39;ASCS_00&#39; [, assert_result=&gt;&#39;true&#39;]);</code></pre>
+
+<p>Returns failcount number for specified resource.</p>
+
+<ul>
+
+<li><p><b>crm_resource</b>: Cluster resource name</p>
+
+</li>
+<li><p><b>assert_result</b>: Make test fail instead of returning value. Default: &#39;false&#39;</p>
+
+</li>
+</ul>
+
+<h2 id="crm_wait_failcount">crm_wait_failcount</h2>
+
+<pre><code>crm_wait_failcount(crm_resource=&gt;&#39;ASCS_00&#39; [, timeout=&gt;&#39;60&#39;, delay=&gt;&#39;3&#39;]);</code></pre>
+
+<p>Waits till crm fail count reached non-zero value of fail after <b>timeout</b></p>
+
+<ul>
+
+<li><p><b>crm_resource</b>: Cluster resource name</p>
+
+</li>
+<li><p><b>timeout</b>: Give up after timeout in sec. Default 60 sec.</p>
+
+</li>
+<li><p><b>delay</b>: Delay between retries. Default: 5 sec</p>
+
+</li>
+</ul>
+
+<h2 id="crm_resources_by_class">crm_resources_by_class</h2>
+
+<pre><code>crm_resources_by_class(primitive_class=&gt;&#39;stonith:external/sbd&#39;);</code></pre>
+
+<p>Returns resource name ARRAYREF filtered by class. Refer to CRM help pages for details: <code>crm configure show --help</code> and <code>crm ra classes</code></p>
+
+<ul>
+
+<li><p><b>primitive_class</b>: CRM resource class name. Example: &#39;stonith:external/sbd&#39;, &#39;IPaddr2&#39;</p>
+
+</li>
+</ul>
+
+<h2 id="crm_resource_locate">crm_resource_locate</h2>
+
+<pre><code>crm_resource_locate(crm_resource=&gt;&#39;ASCS_00&#39;);</code></pre>
+
+<p>Returns hostname of cluster node where defined <b>crm_resource</b> currently resides.</p>
+
+<ul>
+
+<li><p><b>crm_resource</b>: Cluster resource name</p>
+
+</li>
+</ul>
+
+<h2 id="crm_resource_meta_show">crm_resource_meta_show</h2>
+
+<pre><code>crm_resource_meta_show(resource=&gt;&#39;Totoro&#39;, meta_argument=&gt;&#39;neighbour&#39;);</code></pre>
+
+<p>Return resource meta-argument value.</p>
+
+<ul>
+
+<li><p><b>resource</b>: Resource containing parameter</p>
+
+</li>
+<li><p><b>meta_argument</b>: Meta-argument name</p>
+
+</li>
+</ul>
+
+<h2 id="crm_resource_meta_set">crm_resource_meta_set</h2>
+
+<pre><code>crm_resource_meta_set(resource=&gt;&#39;Totoro&#39;, meta_argument=&gt;&#39;neighbour&#39;, argument_value=&gt;&#39;my&#39;);</code></pre>
+
+<p>Change or delete resource meta-argument value.</p>
+
+<ul>
+
+<li><p><b>resource</b>: Resource containing parameter</p>
+
+</li>
+<li><p><b>meta_argument</b>: Meta-argument name</p>
+
+</li>
+<li><p><b>argument_value</b>: Meta-argument value. If <b>undef</b>, meta argument will be removed.</p>
+
+</li>
+</ul>
+
+<h2 id="crm_list_options">crm_list_options</h2>
+
+<pre><code>my $ret = crm_list_options();</code></pre>
+
+<p>Executes a series of <code>crm</code> commands to list metadata options for different resource types (primitive, fencing, cluster attributes) and validates that their XML output is well-formed. This function is designed to test a new feature in <code>crmsh</code> version 5.0.0 and newer, which provides a CLI interface to query resource meta-attributes.</p>
+
+<p>The function will execute the following commands:</p>
+
+<ul>
+
+<li><p><code>crm_resource --list-options primitive --output-as xml</code></p>
+
+</li>
+<li><p><code>crm_resource --list-options fencing --output-as xml</code></p>
+
+</li>
+<li><p><code>crm_attribute --list-options cluster --all --output-as=xml</code></p>
+
+</li>
+</ul>
+
+<p><b>Return values:</b></p>
+
+<ul>
+
+<li><p><b>1</b>: All commands executed successfully and their XML output was valid.</p>
+
+</li>
+<li><p><b>0</b>: The installed <code>crmsh</code> version is older than 5.0.0. The function performs no operation.</p>
+
+</li>
+<li><p><b>-1</b>: At least one of the commands produced output that was not valid XML.</p>
+
+</li>
+</ul>
+
+<h2 id="get_sbd_devices">get_sbd_devices</h2>
+
+<pre><code>my @ret = get_sbd_devices($hostname);</code></pre>
+
+<p>Executes &#39;crm sbd status&#39; to get sbd configuration, and return the devices information for the specify node.</p>
+
+<p>Following is the result of `crm sbd status`, we will check if there are two device on each node. status of sdb.service:</p>
+
+<p>Node |Active |Enable |Since 2nodes-node01: |YES |YES | active since: Tue 2025-07-22 09:45:21 2nodes-node02: |YES |YES | active since: Tue 2025-07-22 09:45:21</p>
+
+<p># Status of the sbd disk watcher process on 2nodes-node01: |-3059 sbd: watcher: /dev/disk/by-path/xxxxxxx - slot : 0 --uuid xxxx |-3060 sbd: watcher: /dev/disk/by-path/xxxxxxx - slot : 0 --uuid xxxx</p>
+
+<p># Status of the sbd disk watcher process on 2nodes-node02: |-3058 sbd: watcher: /dev/disk/by-path/xxxxxxx - slot : 0 --uuid xxxx |-3061 sbd: watcher: /dev/disk/by-path/xxxxxxx - slot : 0 --uuid xxxx</p>
+
+<p># Watchdog info: Node. |Device |Driver |Kernel Timeout 2nodes-node01 |/dev/watchdog. | &lt;unknown&gt; | 10 2nodes-node02 |/dev/watchdog. | &lt;unknown&gt; | 10</p>
+
+<dl>
+
+<dt id="Parameters"><b>Parameters:</b></dt>
+<dd>
+
+<dl>
+
+<dt id="hostname"><code>$hostname</code></dt>
+<dd>
+
+<p>String. The name of the node to query.</p>
+
+</dd>
+</dl>
+
+</dd>
+<dt id="Return-values"><b>Return values:</b></dt>
+<dd>
+
+<p>Array. List of SBD devices, e.g. (sbd_device1, sbd_device2)</p>
+
+</dd>
+</dl>
+
+<h2 id="parse_sbd_metadata">parse_sbd_metadata</h2>
+
+<pre><code>my @ret = parse_sbd_metadata;</code></pre>
+
+<p>Executes &#39;crm sbd configure show disk_metadata&#39; to get sbd information, and return the devices and metadata value.</p>
+
+<p>Following is the result of `crm sbd configure show disk_metadata`, we will check if there are two device on each node. INFO: crm sbd configure show disk_metadata ==Dumping header on disk /dev/disk/by-path/xxxxx Header version : 2.1 UUID : xxx Number of slots : 255 Sector size : 512 Timeout (watchdog) : 5 Timeout (allocate) : 10 Timeout (loop) : 2 Timeout (msgwait) : 5 ==Header on disk /dev/disk/by-path/xxxxxxx is dumped</p>
+
+<p># If there is a second sbd device ==Dumping header on disk /dev/disk/by-path/xxxxx Header version : 2.1 UUID : xxx Number of slots : 255 Sector size : 512 Timeout (watchdog) : 5 Timeout (allocate) : 10 Timeout (loop) : 2 Timeout (msgwait) : 5 ==Header on disk /dev/disk/by-path/xxxxxxx is dumped</p>
+
+<dl>
+
+<dt id="Return-values1"><b>Return values:</b></dt>
+<dd>
+
+<pre><code>(
+       {
+         &#39;metadata&#39; =&gt; {
+                         &#39;allocate&#39; =&gt; &#39;10&#39;,
+                         &#39;loop&#39; =&gt; &#39;2&#39;,
+                         &#39;msgwait&#39; =&gt; &#39;5&#39;,
+                         &#39;watchdog&#39; =&gt; &#39;5&#39;
+                       },
+         &#39;device_name&#39; =&gt; &#39;/dev/disk/by-path/xxxxx&#39;
+       },
+       {
+         &#39;device_name&#39; =&gt; &#39;/dev/disk/by-path/xxxxx&#39;,
+         &#39;metadata&#39; =&gt; {
+                         &#39;allocate&#39; =&gt; &#39;10&#39;,
+                         &#39;loop&#39; =&gt; &#39;2&#39;,
+                         &#39;msgwait&#39; =&gt; &#39;5&#39;,
+                         &#39;watchdog&#39; =&gt; &#39;5&#39;
+                       }
+       }
+     ])</code></pre>
+
+</dd>
+</dl>
+
+<h2 id="list_configured_sbd">list_configured_sbd</h2>
+
+<pre><code>list_configured_sbd();</code></pre>
+
+<p>Returns list of SBD devices defined in `/etc/sysconfig/sbd` as an <b>ARRAYREF</b>. Example: [&#39;/device/1&#39;, &#39;/device/2&#39;]</p>
+
+<h2 id="sbd_device_report">sbd_device_report</h2>
+
+<pre><code>sbd_device_report(device_list=&gt;[&#39;/device/one&#39;, &#39;/device/two&#39;]);</code></pre>
+
+<p>Executes various SBD related commands and returns report compiled from the outputs as a single string.</p>
+
+<ul>
+
+<li><p><b>device_list</b> List of devices as an <b>ARRAYREF</b> that should be included in the report.</p>
+
+</li>
+<li><p><b>expected_sbd_devices_count</b> Optional check if number of expected SBD devices deployed matches current state.</p>
+
+</li>
+</ul>
+
+<h2 id="get_fencing_type">get_fencing_type</h2>
+
+<pre><code>get_fencing_type();</code></pre>
+
+<p>Checks which stonith resource type is configured using <b>crm shell</b>. Returns full type name (&#39;external/sbd&#39;, &#39;fence_azure_arm&#39;, ...).</p>
+
+<h2 id="check_crm_nonroot">check_crm_nonroot</h2>
+
+<pre><code>check_crm_nonroot();</code></pre>
+
+<p>Checks if non-root user run &#39;crm configure show&#39; successfully</p>
+
+<ul>
+
+<li><p><b>user</b> non-root user, usually be &lt;sid&gt;adm</p>
+
+</li>
+</ul>
 
 
 </body>

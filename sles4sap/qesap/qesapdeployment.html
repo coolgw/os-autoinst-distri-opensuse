@@ -1,0 +1,935 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>lib/sles4sap/qesap/qesapdeployment.pm</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' href='../../style.css' />
+</head>
+
+<body>
+
+
+
+<ul id="index"><li><a href="../../index.html"><i>&lt;= Back to file list</i></a></li>
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#COPYRIGHT">COPYRIGHT</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Methods">Methods</a>
+        <ul>
+          <li><a href="#qesap_get_file_paths">qesap_get_file_paths</a></li>
+          <li><a href="#qesap_create_folder_tree">qesap_create_folder_tree</a></li>
+          <li><a href="#qesap_get_variables">qesap_get_variables</a></li>
+          <li><a href="#qesap_ansible_create_section">qesap_ansible_create_section</a></li>
+          <li><a href="#qesap_venv_cmd_exec">qesap_venv_cmd_exec</a></li>
+          <li><a href="#qesap_py">qesap_py</a></li>
+          <li><a href="#qesap_pip">qesap_pip</a></li>
+          <li><a href="#qesap_pip_install">qesap_pip_install</a></li>
+          <li><a href="#qesap_galaxy_install">qesap_galaxy_install</a></li>
+          <li><a href="#qesap_upload_logs">qesap_upload_logs</a></li>
+          <li><a href="#qesap_get_deployment_code">qesap_get_deployment_code</a></li>
+          <li><a href="#qesap_get_roles_code-Get-the-Ansible-roles-code-from-github.com-sap-linuxlab-community.sles-for-sap">qesap_get_roles_code Get the Ansible roles code from github.com/sap-linuxlab/community.sles-for-sap</a></li>
+          <li><a href="#qesap_yaml_replace">qesap_yaml_replace</a></li>
+          <li><a href="#qesap_execute">qesap_execute</a></li>
+          <li><a href="#qesap_terraform_conditional_retry">qesap_terraform_conditional_retry</a></li>
+          <li><a href="#qesap_file_find_strings">qesap_file_find_strings</a></li>
+          <li><a href="#qesap_get_inventory">qesap_get_inventory</a></li>
+          <li><a href="#qesap_get_nodes_number">qesap_get_nodes_number</a></li>
+          <li><a href="#qesap_get_nodes_names">qesap_get_nodes_names</a></li>
+          <li><a href="#qesap_get_terraform_dir">qesap_get_terraform_dir</a></li>
+          <li><a href="#qesap_ansible_get_roles_dir">qesap_ansible_get_roles_dir</a></li>
+          <li><a href="#qesap_prepare_env">qesap_prepare_env</a></li>
+          <li><a href="#qesap_ansible_softfail">qesap_ansible_softfail</a></li>
+          <li><a href="#qesap_ansible_get_playbook">qesap_ansible_get_playbook</a></li>
+          <li><a href="#qesap_ansible_cmd">qesap_ansible_cmd</a></li>
+          <li><a href="#qesap_ansible_script_output_file">qesap_ansible_script_output_file</a></li>
+          <li><a href="#qesap_ansible_script_output">qesap_ansible_script_output</a></li>
+          <li><a href="#qesap_ansible_fetch_file">qesap_ansible_fetch_file</a></li>
+          <li><a href="#qesap_ansible_reg_module">qesap_ansible_reg_module</a></li>
+          <li><a href="#qesap_remote_hana_public_ips">qesap_remote_hana_public_ips</a></li>
+          <li><a href="#qesap_wait_for_ssh">qesap_wait_for_ssh</a></li>
+          <li><a href="#qesap_upload_crm_report">qesap_upload_crm_report</a></li>
+          <li><a href="#qesap_upload_supportconfig_logs">qesap_upload_supportconfig_logs</a></li>
+          <li><a href="#qesap_cluster_log_cmds">qesap_cluster_log_cmds</a></li>
+          <li><a href="#qesap_cluster_logs">qesap_cluster_logs</a></li>
+          <li><a href="#qesap_save_y2logs">qesap_save_y2logs</a></li>
+          <li><a href="#qesap_supportconfig_logs">qesap_supportconfig_logs</a></li>
+          <li><a href="#qesap_calculate_deployment_name">qesap_calculate_deployment_name</a></li>
+          <li><a href="#qesap_aws_filter_query">qesap_aws_filter_query</a></li>
+          <li><a href="#qesap_add_server_to_hosts">qesap_add_server_to_hosts</a></li>
+          <li><a href="#qesap_import_instances">qesap_import_instances</a></li>
+          <li><a href="#qesap_export_instances">qesap_export_instances</a></li>
+        </ul>
+      </li>
+      <li><a href="#qesap_aws_delete_leftover_tgw_attachments">qesap_aws_delete_leftover_tgw_attachments</a></li>
+      <li><a href="#qesap_terraform_ansible_deploy_retry">qesap_terraform_ansible_deploy_retry</a></li>
+      <li><a href="#qesap_ansible_error_detection">qesap_ansible_error_detection</a></li>
+      <li><a href="#qesap_create_cidr_from_ip">qesap_create_cidr_from_ip</a>
+        <ul>
+          <li><a href="#qesap_ssh_intrusion_detection">qesap_ssh_intrusion_detection</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul><h1>lib/sles4sap/qesap/qesapdeployment.pm</h1>
+
+<h1 id="NAME">NAME</h1>
+
+<pre><code>qe-sap-deployment test lib</code></pre>
+
+<h1 id="COPYRIGHT">COPYRIGHT</h1>
+
+<pre><code>Copyright 2025 SUSE LLC
+SPDX-License-Identifier: FSFAP</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<pre><code>QE SAP &lt;qe-sap@suse.de&gt;</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<pre><code>Package with common methods and default or constant values for qe-sap-deployment</code></pre>
+
+<h2 id="Methods">Methods</h2>
+
+<h3 id="qesap_get_file_paths">qesap_get_file_paths</h3>
+
+<pre><code>Returns a hash containing file paths for configuration files</code></pre>
+
+<h3 id="qesap_create_folder_tree">qesap_create_folder_tree</h3>
+
+<pre><code>Create all needed folders</code></pre>
+
+<h3 id="qesap_get_variables">qesap_get_variables</h3>
+
+<pre><code>Scans yaml configuration for &#39;%OPENQA_VARIABLE%&#39; placeholders and
+searches for values in OpenQA defined variables.
+Returns hash with openqa variable key/value pairs.</code></pre>
+
+<h3 id="qesap_ansible_create_section">qesap_ansible_create_section</h3>
+
+<pre><code>Writes &quot;ansible&quot; section into yaml configuration file.
+$args{ansible_section} defines section(key) name.
+$args{section_content} defines content of names section.
+
+Example:
+    @playbook_list = (&quot;pre-cluster.yaml&quot;, &quot;cluster_sbd_prep.yaml&quot;);
+    qesap_ansible_create_section(ansible_section=&gt;&#39;create&#39;, section_content=&gt;\@playbook_list);</code></pre>
+
+<dl>
+
+<dt id="ANSILE_SECTION---name-of-the-yaml-section-within-the-ansible-section-usually-it-is-create-destroy-or-hana_vars"><b>ANSILE_SECTION</b> - name of the yaml section within the ansible section usually it is &#39;create&#39;, &#39;destroy&#39; or &#39;hana_vars&#39;</dt>
+<dd>
+
+</dd>
+<dt id="SECTION_CONTENT---content-as-a-perl-hash"><b>SECTION_CONTENT</b> - content as a perl hash</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_venv_cmd_exec">qesap_venv_cmd_exec</h3>
+
+<pre><code>Run a command within the Python virtualenv
+created by qesap_pip_install.
+
+This function never dies: it always returns an error to the caller.
+Timeout error is 124 (the one reported by timeout command line utility).</code></pre>
+
+<dl>
+
+<dt id="CMD---command-to-run-within-the-.venv-usually-it-is-a-qesap.py-based-command"><b>CMD</b> - command to run within the .venv, usually it is a qesap.py based command</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---default-90-secs-has-to-be-an-integer-greater-than-0"><b>TIMEOUT</b> - default 90 secs, has to be an integer greater than 0</dt>
+<dd>
+
+</dd>
+<dt id="LOG_FILE---optional-argument-that-results-in-changing-the-command-to-redirect-the-output-to-a-log-file"><b>LOG_FILE</b> - optional argument that results in changing the command to redirect the output to a log file</dt>
+<dd>
+
+</dd>
+<dt id="RETRY---number-of-retry-attempts-default-is-1"><b>RETRY</b> - number of retry attempts, default is 1</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_py">qesap_py</h3>
+
+<pre><code>Return string of the python to use</code></pre>
+
+<h3 id="qesap_pip">qesap_pip</h3>
+
+<pre><code>Return string of the pip to use</code></pre>
+
+<h3 id="qesap_pip_install">qesap_pip_install</h3>
+
+<pre><code>Install all Python requirements of the qe-sap-deployment
+in a dedicated virtual environment.
+This function has no return code but it is expected to die
+if something internally fails.</code></pre>
+
+<h3 id="qesap_galaxy_install">qesap_galaxy_install</h3>
+
+<pre><code>Install all Ansible requirements of the qe-sap-deployment.
+This function has no return code but it is expected to die
+if something internally fails.</code></pre>
+
+<h3 id="qesap_upload_logs">qesap_upload_logs</h3>
+
+<pre><code>qesap_upload_logs([failok=1])
+
+Collect and upload logs present in @log_files.
+This is about logs generated locally on the jumphost.</code></pre>
+
+<dl>
+
+<dt id="FAILOK---used-as-failok-for-the-upload_logs.-continue-even-in-case-upload-fails"><b>FAILOK</b> - used as failok for the upload_logs. continue even in case upload fails</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_get_deployment_code">qesap_get_deployment_code</h3>
+
+<pre><code>Get the qe-sap-deployment code</code></pre>
+
+<h3 id="qesap_get_roles_code-Get-the-Ansible-roles-code-from-github.com-sap-linuxlab-community.sles-for-sap">qesap_get_roles_code Get the Ansible roles code from github.com/sap-linuxlab/community.sles-for-sap</h3>
+
+<pre><code>Keep in mind that to allow qe-sap-deployment to use roles from this repo,
+your config.yaml has to have a specific setting ansible::roles_path.</code></pre>
+
+<h3 id="qesap_yaml_replace">qesap_yaml_replace</h3>
+
+<pre><code>Replaces yaml configuration file variables with parameters
+defined by OpenQA test code, yaml template or yaml schedule.
+Openqa variables need to be added as a hash
+with key/value pair inside %run_args{openqa_variables}.
+Example:
+    my %variables;
+    $variables{HANA_SAR} = get_required_var(&quot;HANA_SAR&quot;);
+    $variables{HANA_CLIENT_SAR} = get_required_var(&quot;HANA_CLIENT_SAR&quot;);
+    qesap_yaml_replace(openqa_variables=&gt;\%variables);</code></pre>
+
+<h3 id="qesap_execute">qesap_execute</h3>
+
+<pre><code>qesap_execute(
+    cmd =&gt; &#39;&lt;configure|terraform,|ansible&gt;&#39;,
+    logname =&gt; &#39;&lt;SOMENAME&gt;.log.txt&#39;
+    [, verbose =&gt; 1, cmd_options =&gt; &lt;cmd_options&gt;] );
+
+Example:
+    qesap_execute(cmd =&gt; &#39;terraform&#39;, logname =&gt; &#39;terraform_destroy.log.txt&#39;, cmd_options =&gt; &#39;-d&#39;)
+result in:
+    qesap.py terraform -d
+
+Execute qesap glue script commands. Check project documentation for available options:
+https://github.com/SUSE/qe-sap-deployment
+Function returns a two element array:
+  - first element is an integer representing the execution result
+  - second element is the file path of the execution log
+This function is not expected to internally die, any failure has to be handled by the caller.</code></pre>
+
+<dl>
+
+<dt id="CMD---qesap.py-subcommand-to-run"><b>CMD</b> - qesap.py subcommand to run</dt>
+<dd>
+
+</dd>
+<dt id="LOGNAME---filename-of-the-log-file.-This-file-will-be-saved-in-tmp-folder"><b>LOGNAME</b> - filename of the log file. This file will be saved in `/tmp` folder</dt>
+<dd>
+
+</dd>
+<dt id="CMD_OPTIONS---set-of-arguments-for-the-qesap.py-subcommand"><b>CMD_OPTIONS</b> - set of arguments for the qesap.py subcommand</dt>
+<dd>
+
+</dd>
+<dt id="VERBOSE---activate-verbosity-in-qesap.py.-0-is-no-verbosity-default-1-is-to-enable-verbosity"><b>VERBOSE</b> - activate verbosity in qesap.py. 0 is no verbosity (default), 1 is to enable verbosity</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---max-expected-execution-time-default-90sec"><b>TIMEOUT</b> - max expected execution time, default 90sec</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_terraform_conditional_retry">qesap_terraform_conditional_retry</h3>
+
+<pre><code>qesap_terraform_conditional_retry(
+    error_list =&gt; [&#39;Fatal:&#39;],
+    logname =&gt; &#39;somefile.txt&#39;
+    [, verbose =&gt; 1, cmd_options =&gt; &#39;--parallel 3&#39;, timeout =&gt; 1200, retries =&gt; 5, destroy =&gt; 1, delay_sec =&gt; 6, random_factor =&gt; 0.3] );
+
+Executes &#39;qesap.py ... terraform&#39; and provides a robust retry mechanism for transient
+cloud provider errors. The primary motivation is to avoid a slow and brittle
+destroy-and-recreate cycle for sporadic issues, such as an Azure API timeout like
+&quot;InternalExecutionError: An internal execution error occurred. Please retry later.&quot;.
+
+Upon detecting a recoverable error from the `error_list`, the function waits for a
+randomized backoff period and then re-executes the &#39;terraform plan&#39; and &#39;apply&#39;
+commands. This approach works because the &#39;plan&#39; command implicitly refreshes the
+state from the cloud, detecting any drift or partially completed operations. This
+allows Terraform to intelligently correct the state on the next apply, rather than
+starting from scratch.
+
+The function returns its execution result in the same format as `qesap_execute`.</code></pre>
+
+<dl>
+
+<dt id="ERROR_LIST---list-of-error-strings-to-search-for-in-the-log-file.-If-any-is-found-it-enables-terraform-retry"><b>ERROR_LIST</b> - list of error strings to search for in the log file. If any is found, it enables terraform retry</dt>
+<dd>
+
+</dd>
+<dt id="LOGNAME---filename-of-the-log-file"><b>LOGNAME</b> - filename of the log file.</dt>
+<dd>
+
+</dd>
+<dt id="CMD_OPTIONS---set-of-arguments-for-the-qesap.py-subcommand1"><b>CMD_OPTIONS</b> - set of arguments for the qesap.py subcommand</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---max-expected-execution-time-default-90sec1"><b>TIMEOUT</b> - max expected execution time, default 90sec</dt>
+<dd>
+
+</dd>
+<dt id="RETRIES---number-of-retries-in-case-of-expected-error"><b>RETRIES</b> - number of retries in case of expected error</dt>
+<dd>
+
+</dd>
+<dt id="VERBOSE---activate-verbosity-in-qesap.py.-0-is-no-verbosity-default-1-is-to-enable-verbosity1"><b>VERBOSE</b> - activate verbosity in qesap.py. 0 is no verbosity (default), 1 is to enable verbosity</dt>
+<dd>
+
+</dd>
+<dt id="DESTROY---destroy-terraform-before-retrying-terraform-apply"><b>DESTROY</b> - destroy terraform before retrying terraform apply</dt>
+<dd>
+
+</dd>
+<dt id="DELAY_SEC---seconds-of-delay-before-retry"><b>DELAY_SEC</b> - seconds of delay before retry</dt>
+<dd>
+
+</dd>
+<dt id="RANDOM_FACTOR---random-factor-for-delay-to-avoid-concurrent-retries.-0-is-no-random-factor-1-is-max-random-factor"><b>RANDOM_FACTOR</b> - random factor for delay to avoid concurrent retries. 0 is no random factor, 1 is max random factor.</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_file_find_strings">qesap_file_find_strings</h3>
+
+<pre><code>Search for a list of strings in the Ansible log file.
+Returns 1 if any of the strings are found in the log file, 0 otherwise.</code></pre>
+
+<dl>
+
+<dt id="FILE---Path-to-the-Ansible-log-file.-Required"><b>FILE</b> - Path to the Ansible log file. (Required)</dt>
+<dd>
+
+</dd>
+<dt id="SEARCH_STRINGS---Array-of-strings-to-search-for-in-the-log-file.-Required"><b>SEARCH_STRINGS</b> - Array of strings to search for in the log file. (Required)</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_get_inventory">qesap_get_inventory</h3>
+
+<pre><code>Return the path of the generated inventory</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-using-same-format-of-PUBLIC_CLOUD_PROVIDER-setting"><b>PROVIDER</b> - Cloud provider name using same format of PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_get_nodes_number">qesap_get_nodes_number</h3>
+
+<p>Get the number of cluster nodes from the inventory.yaml</p>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-using-same-format-of-PUBLIC_CLOUD_PROVIDER-setting1"><b>PROVIDER</b> - Cloud provider name using same format of PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_get_nodes_names">qesap_get_nodes_names</h3>
+
+<p>Get the cluster nodes&#39; names from the inventory.yaml</p>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-using-same-format-of-PUBLIC_CLOUD_PROVIDER-setting2"><b>PROVIDER</b> - Cloud provider name using same format of PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_get_terraform_dir">qesap_get_terraform_dir</h3>
+
+<pre><code>Return the path used by the qesap script as -chdir argument for terraform
+It is useful if test would like to call terraform</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-using-same-format-of-PUBLIC_CLOUD_PROVIDER-setting3"><b>PROVIDER</b> - Cloud provider name using same format of PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_ansible_get_roles_dir">qesap_ansible_get_roles_dir</h3>
+
+<pre><code>Return the path where sap-linuxlab/community.sles-for-sap
+has been installed</code></pre>
+
+<h3 id="qesap_prepare_env">qesap_prepare_env</h3>
+
+<pre><code>qesap_prepare_env(variables=&gt;{dict with variables}, provider =&gt; &#39;aws&#39;);
+
+Prepare terraform environment.
+- creates file structures
+- pulls git repository
+- external configuration files
+- installs pip requirements and OS packages
+- generates configuration files with qesap script
+
+For variables example see &#39;qesap_yaml_replace&#39;
+Returns only result, failure handling has to be done by calling method.</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-used-to-optionally-activate-AWS-credential-code"><b>PROVIDER</b> - Cloud provider name, used to optionally activate AWS credential code</dt>
+<dd>
+
+</dd>
+<dt id="REGION---only-needed-when-provider-value-is-EC2"><b>REGION</b> - only needed when provider value is EC2</dt>
+<dd>
+
+</dd>
+<dt id="OPENQA_VARIABLES"><b>OPENQA_VARIABLES</b> -</dt>
+<dd>
+
+</dd>
+<dt id="ONLY_CONFIGURE"><b>ONLY_CONFIGURE</b> -</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_ansible_softfail">qesap_ansible_softfail</h3>
+
+<pre><code>qesap_ansible_softfail(logfile =&gt; &#39;/tmp/ansible.log.txt&#39; )
+
+Call record_soft_failure if a conventional message is detected in the ansible log
+from qe-sap-deployment (check the README of it).
+This function does not return anything.</code></pre>
+
+<dl>
+
+<dt id="LOGFILE---Filename-of-the-log-produced-by-qesap.py-ansible"><b>LOGFILE</b> - Filename of the log produced by &#39;qesap.py ansible&#39;</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_ansible_get_playbook">qesap_ansible_get_playbook</h3>
+
+<pre><code>Download the playbook from the test code repo
+that is on the worker within the running JompHost.</code></pre>
+
+<h3 id="qesap_ansible_cmd">qesap_ansible_cmd</h3>
+
+<pre><code>Use Ansible to run a command remotely on some or all
+the hosts from the inventory.yaml</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-used-to-find-the-inventory"><b>PROVIDER</b> - Cloud provider name, used to find the inventory</dt>
+<dd>
+
+</dd>
+<dt id="CMD---command-to-run-remotely"><b>CMD</b> - command to run remotely</dt>
+<dd>
+
+</dd>
+<dt id="USER---user-on-remote-host-default-to-cloudadmin"><b>USER</b> - user on remote host, default to &#39;cloudadmin&#39;</dt>
+<dd>
+
+</dd>
+<dt id="FILTER---filter-hosts-in-the-inventory"><b>FILTER</b> - filter hosts in the inventory</dt>
+<dd>
+
+</dd>
+<dt id="FAILOK---if-not-set-Ansible-failure-result-in-die"><b>FAILOK</b> - if not set, Ansible failure result in die</dt>
+<dd>
+
+</dd>
+<dt id="HOST_KEYS_CHECK---if-set-add-some-extra-argument-to-the-Ansible-call-to-allow-contacting-hosts-not-in-the-KnownHost-list-yet.-This-enables-the-use-of-this-api-before-the-call-to-qesap.py-ansible"><b>HOST_KEYS_CHECK</b> - if set, add some extra argument to the Ansible call to allow contacting hosts not in the KnownHost list yet. This enables the use of this api before the call to qesap.py ansible</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---default-90-secs"><b>TIMEOUT</b> - default 90 secs</dt>
+<dd>
+
+</dd>
+<dt id="VERBOSE---enable-verbosity-default-is-OFF"><b>VERBOSE</b> - enable verbosity, default is OFF</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_ansible_script_output_file">qesap_ansible_script_output_file</h3>
+
+<pre><code>Use Ansible to run a command remotely and get the stdout.
+Command could be executed with elevated privileges
+
+qesap_ansible_script_output_file(cmd =&gt; &#39;crm status&#39;, provider =&gt; &#39;aws&#39;, host =&gt; &#39;vmhana01&#39;, root =&gt; 1);
+
+It uses playbook data/sles4sap/script_output.yaml
+
+1. ansible-playbook runs the playbook
+2. the playbook executes the command remotely and redirects the output to file, both remotely
+3. qesap_ansible_fetch_file downloads the file locally
+4. the file is read and stored to be returned to the caller
+
+Return is the local full path of the file containing the output of the
+remotely executed command.</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-used-to-find-the-inventory1"><b>PROVIDER</b> - Cloud provider name, used to find the inventory</dt>
+<dd>
+
+</dd>
+<dt id="CMD---command-to-run-remotely1"><b>CMD</b> - command to run remotely</dt>
+<dd>
+
+</dd>
+<dt id="HOST---filter-hosts-in-the-inventory"><b>HOST</b> - filter hosts in the inventory</dt>
+<dd>
+
+</dd>
+<dt id="FILE---result-file-name"><b>FILE</b> - result file name</dt>
+<dd>
+
+</dd>
+<dt id="REMOTE_PATH---Path-to-save-file-in-the-remote-without-file-name"><b>REMOTE_PATH</b> - Path to save file in the remote (without file name)</dt>
+<dd>
+
+</dd>
+<dt id="OUT_PATH---path-to-save-result-file-locally-without-file-name"><b>OUT_PATH</b> - path to save result file locally (without file name)</dt>
+<dd>
+
+</dd>
+<dt id="USER---user-on-remote-host-default-to-cloudadmin1"><b>USER</b> - user on remote host, default to &#39;cloudadmin&#39;</dt>
+<dd>
+
+</dd>
+<dt id="ROOT---1-to-enable-remote-execution-with-elevated-user-default-to-0"><b>ROOT</b> - 1 to enable remote execution with elevated user, default to 0</dt>
+<dd>
+
+</dd>
+<dt id="FAILOK---if-not-set-Ansible-failure-result-in-die1"><b>FAILOK</b> - if not set, Ansible failure result in die</dt>
+<dd>
+
+</dd>
+<dt id="VERBOSE---1-result-in-ansible-playbook-to-be-called-with--vv-default-is-0"><b>VERBOSE</b> - 1 result in ansible-playbook to be called with &#39;-vv&#39;, default is 0.</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---max-expected-execution-time-default-180sec.-Same-timeout-is-used-both-for-the-execution-of-script_output.yaml-and-for-the-fetch_file.-Timeout-of-the-same-amount-is-started-two-times"><b>TIMEOUT</b> - max expected execution time, default 180sec. Same timeout is used both for the execution of script_output.yaml and for the fetch_file. Timeout of the same amount is started two times.</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_ansible_script_output">qesap_ansible_script_output</h3>
+
+<pre><code>Return the output of a command executed on the remote machine via Ansible.</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-used-to-find-the-inventory2"><b>PROVIDER</b> - Cloud provider name, used to find the inventory</dt>
+<dd>
+
+</dd>
+<dt id="CMD---command-to-run-remotely2"><b>CMD</b> - command to run remotely</dt>
+<dd>
+
+</dd>
+<dt id="HOST---filter-hosts-in-the-inventory1"><b>HOST</b> - filter hosts in the inventory</dt>
+<dd>
+
+</dd>
+<dt id="USER---user-on-remote-host-default-to-cloudadmin2"><b>USER</b> - user on remote host, default to &#39;cloudadmin&#39;</dt>
+<dd>
+
+</dd>
+<dt id="ROOT---1-to-enable-remote-execution-with-elevated-user-default-to-01"><b>ROOT</b> - 1 to enable remote execution with elevated user, default to 0</dt>
+<dd>
+
+</dd>
+<dt id="FAILOK---if-not-set-Ansible-failure-result-in-die2"><b>FAILOK</b> - if not set, Ansible failure result in die</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---max-expected-execution-time"><b>TIMEOUT</b> - max expected execution time</dt>
+<dd>
+
+</dd>
+<dt id="FILE---result-file-name1"><b>FILE</b> - result file name</dt>
+<dd>
+
+</dd>
+<dt id="OUT_PATH---path-to-save-result-file-locally-without-file-name1"><b>OUT_PATH</b> - path to save result file locally (without file name)</dt>
+<dd>
+
+</dd>
+<dt id="REMOTE_PATH---Path-to-save-file-in-the-remote-without-file-name1"><b>REMOTE_PATH</b> - Path to save file in the remote (without file name)</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_ansible_fetch_file">qesap_ansible_fetch_file</h3>
+
+<pre><code>Use Ansible to fetch a file from remote.
+Command could be executed with elevated privileges
+
+qesap_ansible_fetch_file(provider =&gt; &#39;aws&#39;, host =&gt; &#39;vmhana01&#39;, root =&gt; 1);
+
+It uses playbook data/sles4sap/fetch_file.yaml
+
+1. ansible-playbook run the playbook
+3. the playbook download the file locally
+4. the file is read and stored to be returned to the caller
+
+Return the local path of the downloaded file.</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-used-to-find-the-inventory3"><b>PROVIDER</b> - Cloud provider name, used to find the inventory</dt>
+<dd>
+
+</dd>
+<dt id="HOST---filter-hosts-in-the-inventory2"><b>HOST</b> - filter hosts in the inventory</dt>
+<dd>
+
+</dd>
+<dt id="REMOTE_PATH---path-to-find-file-in-the-remote-without-file-name"><b>REMOTE_PATH</b> - path to find file in the remote (without file name)</dt>
+<dd>
+
+</dd>
+<dt id="USER---user-on-remote-host-default-to-cloudadmin3"><b>USER</b> - user on remote host, default to &#39;cloudadmin&#39;</dt>
+<dd>
+
+</dd>
+<dt id="ROOT---1-to-enable-remote-execution-with-elevated-user-default-to-02"><b>ROOT</b> - 1 to enable remote execution with elevated user, default to 0</dt>
+<dd>
+
+</dd>
+<dt id="FAILOK---if-not-set-Ansible-failure-result-in-die3"><b>FAILOK</b> - if not set, Ansible failure result in die</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---max-expected-execution-time-default-180sec"><b>TIMEOUT</b> - max expected execution time, default 180sec</dt>
+<dd>
+
+</dd>
+<dt id="FILE---file-name-of-the-local-copy-of-the-file"><b>FILE</b> - file name of the local copy of the file</dt>
+<dd>
+
+</dd>
+<dt id="OUT_PATH---path-to-save-file-locally-without-file-name"><b>OUT_PATH</b> - path to save file locally (without file name)</dt>
+<dd>
+
+</dd>
+<dt id="VERBOSE---1-result-in-ansible-playbook-to-be-called-with--vv-default-is-01"><b>VERBOSE</b> - 1 result in ansible-playbook to be called with &#39;-vv&#39;, default is 0.</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_ansible_reg_module">qesap_ansible_reg_module</h3>
+
+<pre><code>Compose the ansible-playbook argument for the registration.yaml playbook,
+about an additional module registration
+
+-e sles_modules=&#39;[{&quot;key&quot;:&quot;SLES-LTSS-Extended-Security/12.5/x86_64&quot;,&quot;value&quot;:&quot;*******&quot;}]&#39;
+
+Known limitation is that registration.yaml supports multiple modules to be registered,
+this code only supports one.</code></pre>
+
+<h3 id="qesap_remote_hana_public_ips">qesap_remote_hana_public_ips</h3>
+
+<pre><code>Return a list of the public IP addresses of the systems
+deployed by qe-sap-deployment, as reported by C&lt;terraform output&gt;.
+Needs to run after C&lt;qesap_execute(cmd =&gt; &#39;terraform&#39;);&gt; call.</code></pre>
+
+<h3 id="qesap_wait_for_ssh">qesap_wait_for_ssh</h3>
+
+<pre><code>Probe specified port on the remote host each 5sec till response.
+Return -1 in case of timeout
+Return total time of retry loop in case of pass.</code></pre>
+
+<dl>
+
+<dt id="HOST---IP-of-the-host-to-probe"><b>HOST</b> - IP of the host to probe</dt>
+<dd>
+
+</dd>
+<dt id="TIMEOUT---time-to-wait-before-to-give-up-default-is-10mins"><b>TIMEOUT</b> - time to wait before to give up, default is 10mins</dt>
+<dd>
+
+</dd>
+<dt id="PORT---port-to-probe-default-is-22"><b>PORT</b> - port to probe, default is 22</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_upload_crm_report">qesap_upload_crm_report</h3>
+
+<pre><code>Run crm report on a host and upload the resulting tarball to openqa</code></pre>
+
+<dl>
+
+<dt id="HOST---host-to-get-the-report-from"><b>HOST</b> - host to get the report from</dt>
+<dd>
+
+</dd>
+<dt id="PROVIDER---Cloud-provider-name-used-to-find-the-inventory4"><b>PROVIDER</b> - Cloud provider name, used to find the inventory</dt>
+<dd>
+
+</dd>
+<dt id="FAILOK---if-not-set-Ansible-failure-result-in-die4"><b>FAILOK</b> - if not set, Ansible failure result in die</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_upload_supportconfig_logs">qesap_upload_supportconfig_logs</h3>
+
+<pre><code>Generate supportconfig log on a host and upload the resulting tarball to openqa</code></pre>
+
+<dl>
+
+<dt id="HOST---host-to-get-the-report-from1"><b>HOST</b> - host to get the report from</dt>
+<dd>
+
+</dd>
+<dt id="PROVIDER---Cloud-provider-name-used-to-find-the-inventory5"><b>PROVIDER</b> - Cloud provider name, used to find the inventory</dt>
+<dd>
+
+</dd>
+<dt id="FAILOK---if-not-set-Ansible-failure-result-in-die5"><b>FAILOK</b> - if not set, Ansible failure result in die</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_cluster_log_cmds">qesap_cluster_log_cmds</h3>
+
+<pre><code>List of commands to collect logs from a deployed cluster</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-used-to-find-the-inventory6"><b>PROVIDER</b> - Cloud provider name, used to find the inventory</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_cluster_logs">qesap_cluster_logs</h3>
+
+<pre><code>Collect logs from a deployed cluster.
+This is about logs generated remotely on the two HANA nodes,
+`crm report` collection is part of this function.</code></pre>
+
+<h3 id="qesap_save_y2logs">qesap_save_y2logs</h3>
+
+<pre><code>Collect y2logs from nodes of a deployed cluster</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-using-same-format-of-PUBLIC_CLOUD_PROVIDER-setting4"><b>PROVIDER</b> - Cloud provider name using same format of PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+<dt id="HOST---node-of-a-deployed-cluster"><b>HOST</b> - node of a deployed cluster</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_supportconfig_logs">qesap_supportconfig_logs</h3>
+
+<pre><code>Collect supportconfig logs from all HANA nodes of a deployed cluster</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---Cloud-provider-name-using-same-format-of-PUBLIC_CLOUD_PROVIDER-setting5"><b>PROVIDER</b> - Cloud provider name using same format of PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+<dt id="INVENTORY---Ansible-inventory-if-available"><b>INVENTORY</b> - Ansible inventory if available</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_calculate_deployment_name">qesap_calculate_deployment_name</h3>
+
+<p>Compose the deployment name. It always has the JobId</p>
+
+<dl>
+
+<dt id="PREFIX---optional-substring-prepend-in-front-of-the-job-id"><b>PREFIX</b> - optional substring prepend in front of the job id</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_aws_filter_query">qesap_aws_filter_query</h3>
+
+<pre><code>Generic function to compose a aws cli command with:
+  - `aws ec2` something
+  - use both `filter` and `query`
+  - has text output</code></pre>
+
+<h3 id="qesap_add_server_to_hosts">qesap_add_server_to_hosts</h3>
+
+<pre><code>Adds a &#39;ip -&gt; name&#39; pair in the end of /etc/hosts in the hosts</code></pre>
+
+<dl>
+
+<dt id="IP---ip-of-server-to-add-to-hosts"><b>IP</b> - ip of server to add to hosts</dt>
+<dd>
+
+</dd>
+<dt id="NAME---name-of-server-to-add-to-hosts"><b>NAME</b> - name of server to add to hosts</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_import_instances">qesap_import_instances</h3>
+
+<pre><code>Downloads assets required for re-using infrastructure from previously exported test.
+qesap_import_instances(&lt;$test_id&gt;)</code></pre>
+
+<dl>
+
+<dt id="test_id---OpenQA-test-ID-from-a-test-previously-run-with-QESAP_DEPLOYMENT_IMPORT-1-and-infrastructure-still-being-up-and-running"><b>$test_id</b> - OpenQA test ID from a test previously run with &quot;QESAP_DEPLOYMENT_IMPORT=1&quot; and infrastructure still being up and running</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_export_instances">qesap_export_instances</h3>
+
+<pre><code>Downloads assets required for re-using infrastructure from previously exported test.
+qesap_export_instances()</code></pre>
+
+<h2 id="qesap_aws_delete_leftover_tgw_attachments">qesap_aws_delete_leftover_tgw_attachments</h2>
+
+<pre><code>Delete leftover peering resources for AWS jobs that finished without cleaning up.
+This only works for resources created by jobs that run on the same openqa server 
+that the current job is running on.</code></pre>
+
+<dl>
+
+<dt id="MIRROR_TAG---tag-of-the-IBS-Mirror"><b>MIRROR_TAG</b> - tag of the IBS Mirror</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h2 id="qesap_terraform_ansible_deploy_retry">qesap_terraform_ansible_deploy_retry</h2>
+
+<pre><code>qesap_terraform_ansible_deploy_retry( error_log=&gt;$error_log )
+    error_log - ansible error log file name
+
+Retry to deploy terraform + ansible. This function is only expected to be called if a previous `qesap.py`
+execution returns a non zero exit code. If this function is called after a successful execution,
+the qesap_ansible_error_detection will not find anything wrong in the log, wrongly concluding that
+an unknown error is in the log and skipping the retry and this function will return 1..
+Return 0: this function manage the failure properly, perform a retry and retry was a successful deployment
+Return 1: something went wrong or this function does not know what to do with the failure</code></pre>
+
+<dl>
+
+<dt id="ERROR_LOG---error-log-filename"><b>ERROR_LOG</b> - error log filename</dt>
+<dd>
+
+</dd>
+<dt id="PROVIDER---cloud-provider-name-as-from-PUBLIC_CLOUD_PROVIDER-setting"><b>PROVIDER</b> - cloud provider name as from PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h2 id="qesap_ansible_error_detection">qesap_ansible_error_detection</h2>
+
+<pre><code>qesap_ansible_error_detection( error_log=&gt;$error_log )
+
+Inspect the provided Ansible log and search for known issue in the log
+Also provide a nice record_info to summarize the error
+Return:
+ - 0: unable to detect errors
+ - 1: generic fatal error
+ - 2: reboot timeout
+ - 3: no sudo password</code></pre>
+
+<dl>
+
+<dt id="ERROR_LOG---error-log-filename1"><b>ERROR_LOG</b> - error log filename</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h2 id="qesap_create_cidr_from_ip">qesap_create_cidr_from_ip</h2>
+
+<pre><code>qesap_create_cidr_from_ip( proceed_on_failure )
+
+Takes an IP as argument and returns the CIDR string that
+denotes this specific ip (adds /32 mask for ipv4, /128 for ipv6).
+Return:
+ - CIDR notation for the provided IP
+ - undef if IP can&#39;t be validated and proceed_on_failure is true</code></pre>
+
+<dl>
+
+<dt id="IP---The-ip-to-convert-to-CIDR"><b>IP</b> - The ip to convert to CIDR</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_ssh_intrusion_detection">qesap_ssh_intrusion_detection</h3>
+
+<pre><code>Search and report relevant messages from the journal.</code></pre>
+
+<dl>
+
+<dt id="PROVIDER---cloud-provider-name-as-from-PUBLIC_CLOUD_PROVIDER-setting1"><b>PROVIDER</b> - cloud provider name as from PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+</dl>
+
+
+</body>
+
+</html>
+
+

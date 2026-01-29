@@ -1,0 +1,120 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>lib/sles4sap/ibsm.pm</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' href='../style.css' />
+</head>
+
+<body>
+
+
+
+<ul id="index"><li><a href="../index.html"><i>&lt;= Back to file list</i></a></li>
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#COPYRIGHT">COPYRIGHT</a></li>
+  <li><a href="#AUTHORS">AUTHORS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a>
+    <ul>
+      <li><a href="#Methods">Methods</a>
+        <ul>
+          <li><a href="#ibsm_calculate_address_range">ibsm_calculate_address_range</a></li>
+        </ul>
+      </li>
+      <li><a href="#ibsm_network_peering_azure_create">ibsm_network_peering_azure_create</a>
+        <ul>
+          <li><a href="#ibsm_network_peering_azure_delete">ibsm_network_peering_azure_delete</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul><h1>lib/sles4sap/ibsm.pm</h1>
+
+<h1 id="NAME">NAME</h1>
+
+<pre><code>IBS Mirror utilities lib</code></pre>
+
+<h1 id="COPYRIGHT">COPYRIGHT</h1>
+
+<pre><code>Copyright 2025 SUSE LLC
+SPDX-License-Identifier: FSFAP</code></pre>
+
+<h1 id="AUTHORS">AUTHORS</h1>
+
+<pre><code>QE SAP &lt;qe-sap@suse.de&gt;</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<pre><code>Package with common methods allowing the SUT to interact with IBSm</code></pre>
+
+<h2 id="Methods">Methods</h2>
+
+<h3 id="ibsm_calculate_address_range">ibsm_calculate_address_range</h3>
+
+<p>Calculate a main range that can be used in Azure for vnet or in AWS for vpc. Also calculate a secondary range within the main one for Azure subnet address ranges. The format is 10.ip2.ip3.0/21 and /24 respectively. ip2 and ip3 are calculated using the slot number as seed.</p>
+
+<dl>
+
+<dt id="slot---integer-to-be-used-as-seed-in-calculating-addresses"><b>slot</b> - integer to be used as seed in calculating addresses</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h2 id="ibsm_network_peering_azure_create">ibsm_network_peering_azure_create</h2>
+
+<pre><code>ibsm_network_peering_azure_create(ibsm_rg =&gt; &#39;IBSmMyRg&#39;);</code></pre>
+
+<p>Create bidirectional network peering in Azure</p>
+
+<dl>
+
+<dt id="ibsm_rg---Azure-resource-group-of-the-IBSm"><b>ibsm_rg</b> - Azure resource group of the IBSm</dt>
+<dd>
+
+</dd>
+<dt id="sut_rg---Azure-resource-group-of-the-SUT"><b>sut_rg</b> - Azure resource group of the SUT</dt>
+<dd>
+
+</dd>
+<dt id="name_prefix---prefix-to-be-applied-at-the-beginning-of-each-peering-name"><b>name_prefix</b> - prefix to be applied at the beginning of each peering name</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="ibsm_network_peering_azure_delete">ibsm_network_peering_azure_delete</h3>
+
+<pre><code>Delete all the network peering between the two provided deployments.</code></pre>
+
+<dl>
+
+<dt id="ibsm_rg---Azure-resource-group-of-the-IBSm1"><b>ibsm_rg</b> - Azure resource group of the IBSm</dt>
+<dd>
+
+</dd>
+<dt id="sut_rg---Azure-resource-group-of-the-SUT1"><b>sut_rg</b> - Azure resource group of the SUT</dt>
+<dd>
+
+</dd>
+<dt id="sut_vnet---substring-in-the-SUT-vnet.-Optional-and-only-needed-if-only-one-specific-VNET-has-to-be-considered.-Most-of-the-time-it-is-get_current_job_id"><b>sut_vnet</b> - substring in the SUT vnet. Optional and only needed if only one specific VNET has to be considered. Most of the time it is get_current_job_id()</dt>
+<dd>
+
+</dd>
+<dt id="query---valid-jmespath-https:-jmespath.org-default:-.name-optional"><b>query</b> - valid jmespath https://jmespath.org/ (default: &#39;[].name&#39;), optional</dt>
+<dd>
+
+</dd>
+<dt id="timeout---default-is-5-mins"><b>timeout</b> - default is 5 mins</dt>
+<dd>
+
+</dd>
+</dl>
+
+
+</body>
+
+</html>
+
+

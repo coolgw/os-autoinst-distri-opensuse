@@ -14,16 +14,249 @@
 <ul id="index"><li><a href="../index.html"><i>&lt;= Back to file list</i></a></li>
   <li>
     <ul>
+      <li><a href="#ssh_add_suseconnect_product">ssh_add_suseconnect_product</a></li>
+      <li><a href="#ssh_remove_suseconnect_product">ssh_remove_suseconnect_product</a></li>
+      <li><a href="#get_credentials-get_credentials-url_suffix-some_csp.json-namespace-some_name-output_json-.-local_credentials.json">get_credentials get_credentials(url_suffix =&gt; &#39;some_csp.json&#39;[, namespace =&gt; &#39;some_name&#39;, output_json =&gt; &#39;./local_credentials.json&#39;])</a></li>
       <li><a href="#gcloud_install-gcloud_install-url-dir-timeout">gcloud_install gcloud_install($url, $dir, $timeout)</a></li>
+      <li><a href="#ssh_update_transactional_system">ssh_update_transactional_system</a></li>
+      <li><a href="#get_python_exec">get_python_exec</a></li>
+      <li><a href="#create_script_file">create_script_file</a></li>
+      <li><a href="#install_in_venv">install_in_venv</a></li>
+      <li><a href="#venv_create">venv_create</a></li>
+      <li><a href="#venv_activate">venv_activate</a></li>
+      <li><a href="#venv_prepare_install_source">venv_prepare_install_source</a></li>
+      <li><a href="#venv_install_packages">venv_install_packages</a></li>
+      <li><a href="#venv_record_installed_packages">venv_record_installed_packages</a></li>
+      <li><a href="#venv_deactivate">venv_deactivate</a></li>
+      <li><a href="#venv_generate_runner_script">venv_generate_runner_script</a></li>
+      <li><a href="#get_installed_packages_remote">get_installed_packages_remote</a></li>
+      <li><a href="#get_available_packages_remote">get_available_packages_remote</a></li>
+      <li><a href="#zypper_add_repo_remote">zypper_add_repo_remote</a></li>
+      <li><a href="#zypper_remove_repo_remote">zypper_remove_repo_remote</a></li>
+      <li><a href="#wait_quit_zypper_pc">wait_quit_zypper_pc</a></li>
+      <li><a href="#detect_worker_ip">detect_worker_ip</a></li>
+      <li><a href="#zypper_call_remote">zypper_call_remote</a>
+        <ul>
+          <li><a href="#Transactional-Systems-If-is_transactional-is-true-the-command-is-prefixed-with-transactional-update--n-pkg.-Additionally-a-softreboot-is-triggered-automatically-upon-success-to-apply-changes">Transactional Systems If is_transactional() is true, the command is prefixed with transactional-update -n pkg. Additionally, a softreboot() is triggered automatically upon success to apply changes.</a></li>
+          <li><a href="#Error-Handling-On-failure-the-function:-1.-Uploads-var-log-zypper.log-to-the-test-results.-2.-Specifically-checks-for-known-issues-like-bsc-1070851-502-errors-.-3.-Parses-logs-for-Solver-Conflicts-Exit-4-Missing-Capabilities-Exit-104-or-RPM-scriptlet-failures-Exit-107-and-reports-them-via-record_info">Error Handling On failure, the function: 1. Uploads /var/log/zypper.log to the test results. 2. Specifically checks for known issues like bsc#1070851 (502 errors). 3. Parses logs for Solver Conflicts (Exit 4), Missing Capabilities (Exit 104), or RPM scriptlet failures (Exit 107) and reports them via record_info.</a></li>
+        </ul>
+      </li>
+      <li><a href="#calculate_custodian_ttl">calculate_custodian_ttl {</a></li>
     </ul>
   </li>
 </ul><h1>lib/publiccloud/utils.pm</h1>
+
+<h2 id="ssh_add_suseconnect_product">ssh_add_suseconnect_product</h2>
+
+<pre><code>ssh_add_suseconnect_product($remote, $name, [program =&gt; $program, [version =&gt; $version, [arch =&gt; $arch, [params =&gt; $params, [timeout =&gt; $timeout, [retries =&gt; $retries, [delay =&gt; $delay]]]]]]]);</code></pre>
+
+<p>Register addon in the SUT</p>
+
+<h2 id="ssh_remove_suseconnect_product">ssh_remove_suseconnect_product</h2>
+
+<pre><code>ssh_remove_suseconnect_product($name, [$version, [$arch, [$params]]]);</code></pre>
+
+<p>Deregister addon in SUT</p>
+
+<h2 id="get_credentials-get_credentials-url_suffix-some_csp.json-namespace-some_name-output_json-.-local_credentials.json">get_credentials get_credentials(url_suffix =&gt; &#39;some_csp.json&#39;[, namespace =&gt; &#39;some_name&#39;, output_json =&gt; &#39;./local_credentials.json&#39;])</h2>
+
+<p>Get credentials from the Public Cloud micro service, which requires user and password. The resulting json will be optionally stored in a file. This function also get input from these variables: - PUBLIC_CLOUD_CREDENTIALS_URL - _SECRET_PUBLIC_CLOUD_CREDENTIALS_USER - _SECRET_PUBLIC_CLOUD_CREDENTIALS_PWD</p>
+
+<dl>
+
+<dt id="url_suffix---last-part-of-the-micro-service-url"><b>url_suffix</b> - last part of the micro service url</dt>
+<dd>
+
+</dd>
+<dt id="output_json---optional-save-the-credential-to-json-file-with-provided-filename"><b>output_json</b> - (optional) save the credential to json file with provided filename.</dt>
+<dd>
+
+</dd>
+<dt id="namespace---optional-credential-namespace-on-the-micro-service.-If-not-provided-read-from-PUBLIC_CLOUD_NAMESPACE"><b>namespace</b> - (optional) credential namespace on the micro service. If not provided read from PUBLIC_CLOUD_NAMESPACE</dt>
+<dd>
+
+</dd>
+</dl>
 
 <h2 id="gcloud_install-gcloud_install-url-dir-timeout">gcloud_install gcloud_install($url, $dir, $timeout)</h2>
 
 <p>This function is used to install the gcloud CLI for the GKE Google Cloud.</p>
 
 <p>From $url we get the full package and install it in $dir local folder as a subdir of /root. Defaults are available for a simple call without parameters: gcloud_install()</p>
+
+<h2 id="ssh_update_transactional_system">ssh_update_transactional_system</h2>
+
+<p>ssh_update_transactional_system($host);</p>
+
+<p>Connect to the remote host <code>$instance</code> using ssh and update the system by running <code>zypper update</code> twice, in transactional mode. The first run will update the package manager, the second run will update the system. Transactional systems like SLE micro used <code>transactional_update up</code> and reboot.</p>
+
+<h2 id="get_python_exec">get_python_exec</h2>
+
+<p>get_python_exec()</p>
+
+<p>Returns the Python executable name for public cloud purposes. As of now, it returns &quot;python3.11&quot; by default.</p>
+
+<h2 id="create_script_file">create_script_file</h2>
+
+<p>create_script_file($filename, $fullpath, $content)</p>
+
+<p>Creates a script file with the given content, downloads it from the autoinst URL, and makes it executable. This is useful for creating scripts that can be run on the public cloud instance.</p>
+
+<h2 id="install_in_venv">install_in_venv</h2>
+
+<p>install_in_venv($binary, %args)</p>
+
+<p>Installs a Python package in a virtual environment. The package can be specified either by a requirements.txt file or by a list of pip packages. The function creates a virtual environment, installs the specified package(s), and creates a wrapper script to run the binary within the virtual environment.</p>
+
+<h2 id="venv_create">venv_create</h2>
+
+<p>venv_create($binary)</p>
+
+<p>Creates a Python virtual environment in the home directory of the root user. The virtual environment is named after the binary, prefixed with &quot;.venv_&quot;.</p>
+
+<h2 id="venv_activate">venv_activate</h2>
+
+<p>venv_activate($venv)</p>
+
+<p>Activates the Python virtual environment specified by <code>$venv</code>.</p>
+
+<h2 id="venv_prepare_install_source">venv_prepare_install_source</h2>
+
+<p>venv_prepare_install_source($binary, $args_ref)</p>
+
+<p>Prepares the source for installation in the virtual environment. If the <code>requirements</code> argument is defined, it fetches a requirements.txt file from the autoinst URL and returns the path to that file. If not, it returns the list of pip packages to install.</p>
+
+<h2 id="venv_install_packages">venv_install_packages</h2>
+
+<p>venv_install_packages($install_target)</p>
+
+<p>Installs the specified package(s) in the virtual environment using pip. This function takes a string that can be either a path to a requirements.txt file or a list of pip packages.</p>
+
+<h2 id="venv_record_installed_packages">venv_record_installed_packages</h2>
+
+<p>venv_record_installed_packages($venv) Records the installed packages in the virtual environment by running `pip freeze`.</p>
+
+<h2 id="venv_deactivate">venv_deactivate</h2>
+
+<p>venv_deactivate()</p>
+
+<p>Deactivates the currently active Python virtual environment.</p>
+
+<h2 id="venv_generate_runner_script">venv_generate_runner_script</h2>
+
+<p>venv_generate_runner_script($binary, $venv)</p>
+
+<p>Generates a shell script that activates the virtual environment and runs the specified binary. This script checks if the binary exists in the virtual environment and exits with an error if it does not.</p>
+
+<h2 id="get_installed_packages_remote">get_installed_packages_remote</h2>
+
+<p>get_installed_packages_remote($instance, $packages_ref)</p>
+
+<p>This function checks which packages from the provided list are installed on the remote instance. It returns an array reference containing the names of the installed packages.</p>
+
+<h2 id="get_available_packages_remote">get_available_packages_remote</h2>
+
+<p>get_available_packages_remote($instance, $packages_ref)</p>
+
+<p>This function checks which packages from the provided list are available for installation on the remote instance. It returns an array reference containing the names of the available packages. It uses `zypper -x info` to query the availability of packages.</p>
+
+<h2 id="zypper_add_repo_remote">zypper_add_repo_remote</h2>
+
+<p>zypper_add_repo_remote($instance, $repo_name, $repo_url)</p>
+
+<p>This function adds a repository to the remote instance using zypper. It uses the `-fG` options to add the repository as a GPG-verified repository.</p>
+
+<h2 id="zypper_remove_repo_remote">zypper_remove_repo_remote</h2>
+
+<p>zypper_remove_repo_remote($instance, $repo_name)</p>
+
+<p>This function removes a repository from the remote instance using zypper. It uses the `-n` option to run the command non-interactively.</p>
+
+<h2 id="wait_quit_zypper_pc">wait_quit_zypper_pc</h2>
+
+<pre><code>wait_quit_zypper_pc($instance
+    [, timeout =&gt; 20 ]   # per-attempt SSH timeout (s)
+    [, delay   =&gt; 10 ]   # delay between attempts (s)
+    [, retry   =&gt; 60 ]   # number of attempts
+);</code></pre>
+
+<p>Wait until no background zypper-related processes are running on the remote instance. Uses <code>retry_ssh_command</code> for polling. Returns on success; dies after retries are exhausted.</p>
+
+<h2 id="detect_worker_ip">detect_worker_ip</h2>
+
+<pre><code>detect_worker_ip($proceed_on_failure)
+
+Detects the current openQA worker&#39;s public IPs (ipv4/6) and returns them as
+an array of suitable CIDR strings(/32 or /128 for ipv4/6, respectively).
+The function uses http://checkip.amazonaws.com and falls back to https://ifconfig.me
+if the first attempt fails.
+Optionally accepts proceed_on_failure =&gt; 1 to return undef instead of dying.
+
+Return:
+- worker ip, if retrieved
+- undef otherwise (if proceed_on_failure is set)</code></pre>
+
+<h2 id="zypper_call_remote">zypper_call_remote</h2>
+
+<pre><code>zypper_call_remote($instance, cmd =&gt; $cmd, [%args]);</code></pre>
+
+<p>Executes a <code>zypper</code> or <code>transactional-update</code> command on a remote <code>$instance</code> via SSH. The function automatically handles command prefixing (adding sudo and non-interactive flags), retries on specific network/solver failures, and parses logs for detailed error reporting.</p>
+
+<dl>
+
+<dt id="cmd-string"><b>cmd</b> =&gt; $string</dt>
+<dd>
+
+<p>The zypper subcommand and arguments (e.g., <code>&#39;install -y vim&#39;</code>). Do not include <code>sudo</code> or <code>-n</code>, as these are added automatically. <b>Note:</b> Piping to <code>grep</code> is forbidden to ensure exit codes are captured correctly.</p>
+
+</dd>
+<dt id="timeout-int"><b>timeout</b> =&gt; $int</dt>
+<dd>
+
+<p>Command timeout in seconds. Defaults to <b>900</b> for transactional systems and <b>700</b> for standard systems. Must be greater than 0.</p>
+
+</dd>
+<dt id="exitcode-arrayref"><b>exitcode</b> =&gt; $arrayref</dt>
+<dd>
+
+<p>A list of exit codes to be treated as success. Defaults to <code>[0]</code>.</p>
+
+</dd>
+<dt id="retry-int"><b>retry</b> =&gt; $int</dt>
+<dd>
+
+<p>Number of times to attempt the command if it fails. Defaults to <code>1</code>.</p>
+
+</dd>
+<dt id="delay-int"><b>delay</b> =&gt; $int</dt>
+<dd>
+
+<p>Seconds to wait between retries. Defaults to <code>5</code>.</p>
+
+</dd>
+<dt id="proceed_on_failure-boolean"><b>proceed_on_failure</b> =&gt; $boolean</dt>
+<dd>
+
+<p>If set to <code>1</code>, the function will record a failure in the test results but will not <code>die</code>. Defaults to <code>0</code>.</p>
+
+</dd>
+<dt id="wait_quit_zypper-boolean"><b>wait_quit_zypper</b> =&gt; $boolean</dt>
+<dd>
+
+<p>If set to <code>1</code> (default), it calls <code>wait_quit_zypper_pc</code> to wait for any running zypper processes to terminate before starting. This effectively eliminates the need for manual handling of <b>exit code 7</b> (ZYPPER_EXIT_INTERFACE_LOCKED), which occurs when zypper cannot acquire the execution lock because it is held by another process.</p>
+
+</dd>
+</dl>
+
+<h3 id="Transactional-Systems-If-is_transactional-is-true-the-command-is-prefixed-with-transactional-update--n-pkg.-Additionally-a-softreboot-is-triggered-automatically-upon-success-to-apply-changes">Transactional Systems If <code>is_transactional()</code> is true, the command is prefixed with <code>transactional-update -n pkg</code>. Additionally, a <code>softreboot()</code> is triggered automatically upon success to apply changes.</h3>
+
+<h3 id="Error-Handling-On-failure-the-function:-1.-Uploads-var-log-zypper.log-to-the-test-results.-2.-Specifically-checks-for-known-issues-like-bsc-1070851-502-errors-.-3.-Parses-logs-for-Solver-Conflicts-Exit-4-Missing-Capabilities-Exit-104-or-RPM-scriptlet-failures-Exit-107-and-reports-them-via-record_info">Error Handling On failure, the function: 1. Uploads <code>/var/log/zypper.log</code> to the test results. 2. Specifically checks for known issues like <b>bsc#1070851</b> (502 errors). 3. Parses logs for Solver Conflicts (Exit 4), Missing Capabilities (Exit 104), or RPM scriptlet failures (Exit 107) and reports them via <code>record_info</code>.</h3>
+
+<h2 id="calculate_custodian_ttl">calculate_custodian_ttl {</h2>
+
+<p>calculate_custodian_ttl($ttl_in_seconds)</p>
+
+<p>This function adds the following tags to public cloud objects: custodian_ttl custodian_ttl is calculated by adding the $ttl_in_seconds to the current time and formatting it in ISO 8601 This tag is needed to compare TTL vs Creation time in Cloud Custodian.</p>
 
 
 </body>

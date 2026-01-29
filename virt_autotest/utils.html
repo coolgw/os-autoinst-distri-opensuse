@@ -14,12 +14,37 @@
 <ul id="index"><li><a href="../index.html"><i>&lt;= Back to file list</i></a></li>
   <li>
     <ul>
+      <li><a href="#get_default_ssh_keyfile">get_default_ssh_keyfile</a></li>
+      <li><a href="#assign_random_bridge_guest">assign_random_bridge_guest</a></li>
       <li><a href="#check_port_state">check_port_state</a></li>
+      <li><a href="#is_registered_system">is_registered_system</a></li>
+      <li><a href="#do_system_registration">do_system_registration</a></li>
+      <li><a href="#check_system_registration">check_system_registration</a></li>
       <li><a href="#subscribe_extensions_and_modules">subscribe_extensions_and_modules</a></li>
       <li><a href="#is_sev_es_guest">is_sev_es_guest</a></li>
+      <li><a href="#get_guest_regcode">get_guest_regcode</a></li>
+      <li><a href="#execute_over_ssh">execute_over_ssh</a></li>
+      <li><a href="#reboot_virtual_machine">reboot_virtual_machine</a></li>
+      <li><a href="#get_guest_settings">get_guest_settings</a></li>
+      <li><a href="#reselect_openqa_console">reselect_openqa_console</a></li>
+      <li><a href="#select_backend_console">select_backend_console</a></li>
+      <li><a href="#double_check_xen_role">double_check_xen_role</a></li>
+      <li><a href="#check_kvm_modules">check_kvm_modules</a></li>
+      <li><a href="#download_installation_iso">download_installation_iso</a></li>
+      <li><a href="#install_product_software">install_product_software</a></li>
     </ul>
   </li>
 </ul><h1>lib/virt_autotest/utils.pm</h1>
+
+<h2 id="get_default_ssh_keyfile">get_default_ssh_keyfile</h2>
+
+<p>Get the default SSH key file path based on SLE version. Returns ed25519 key for SLE 16+ (RSA+SHA1 is disabled by default), and RSA key for SLE 15 and below. Optional parameter: &#39;pubkey&#39; =&gt; 1 to get the public key file path.</p>
+
+<h2 id="assign_random_bridge_guest">assign_random_bridge_guest</h2>
+
+<p>Randomly selects one guest to use bridge network (bridge=br0) for public IP testing. This ensures all guests eventually get tested while minimizing public IP consumption.</p>
+
+<p>Override: Set FORCE_BRIDGE_GUEST=&lt;guestname&gt; to force a specific guest for reproducibility.</p>
 
 <h2 id="check_port_state">check_port_state</h2>
 
@@ -27,17 +52,91 @@
 
 <p>Check whether given port is open on remote machine. This subroutine accepts four arguments, dst_machine, dst_port, retries and delay, which are fqdn or ip addr of remote machine, port on remote machine, the number of retries and delay value respectively. Default retries is 1 and default delay is 30 seconds. dst_machine and dst_port have no default value and test will die if the subroutine is called without being passed value to dst_machine or dst_port.The subroutine will return 1 if the given port is open on the specified remote machine, otherwise it will return 0.</p>
 
+<h2 id="is_registered_system">is_registered_system</h2>
+
+<pre><code>is_registered_system(dst_machine =&gt; $machine)</code></pre>
+
+<p>Detect whether system under test is registered. If [dst_machine] is not given, the default value &#39;localhost&#39; will be used. Using &quot;transactional-update register&quot; if 1 is given to [usetrup], otherwise keeping using SUSEConnect.</p>
+
+<h2 id="do_system_registration">do_system_registration</h2>
+
+<pre><code>do_system_registration(dst_machine =&gt; $machine, activate =&gt; 1/0)</code></pre>
+
+<p>Register/de-register system according to argument [activate]. If argument [dst_machine] is not given, the default value &#39;localhost&#39; will be used. Using &quot;transactional-update register&quot; if 1 is given to [usetrup], otherwise keeping using SUSEConnect.</p>
+
+<h2 id="check_system_registration">check_system_registration</h2>
+
+<pre><code>check_system_registration(dst_machine =&gt; $machine)</code></pre>
+
+<p>Check current system registration status. If argument [dst_machine] is not given, the default value &#39;localhost&#39; will be used. Using &quot;transactional-update register&quot; if 1 is given to [usetrup], otherwise keeping using SUSEConnect.</p>
+
 <h2 id="subscribe_extensions_and_modules">subscribe_extensions_and_modules</h2>
 
 <pre><code>subscribe_extensions_and_modules(dst_machine =&gt; $machine, activate =&gt; 1/0, reg_exts =&gt; $exts)</code></pre>
 
-<p>Any available extensions and modules listed out by SUSEConnect --list-extensions that do not require additional regcode can be subscribe directly by using command SUSEConnect -p [extension or module]. Subscription is to be performed on localhost by default if argument dst_machine is not given any other address, and successful access to dst_machine via ssh should be guaranteed in advance if dst_machine points to a remote machine. Deactivation is also supported if argument activate is given 0 explicitly. Multiple extensions or modules can be passed in as a single string separated by space to argument reg_exts to be subscribed one by one.</p>
+<p>Any available extensions and modules listed out by SUSEConnect --list-extensions that do not require additional regcode can be subscribe directly by using command SUSEConnect -p [extension or module]. Subscription is to be performed on localhost by default if argument dst_machine is not given any other address, and successful access to dst_machine via ssh should be guaranteed in advance if dst_machine points to a remote machine. Deactivation is also supported if argument activate is given 0 explicitly. Multiple extensions or modules can be passed in as a single string separated by space to argument reg_exts to be subscribed one by one. Direct using &quot;transactional-update register&quot; or &quot;SUSEConnect&quot; depends on the actual situation in which this subroutine is called, namely whether already in transactional shell , so either is allowed by toggling argument usetrup or setting USE_TRUP.</p>
 
 <h2 id="is_sev_es_guest">is_sev_es_guest</h2>
 
 <pre><code>is_sev_es_guest($guest_name)</code></pre>
 
 <p>Check whether a guest is sev-es, sev only or not sev/sev-es guest by searching whether sev-es or sev word is available in its name. The only argument for the subroutine is guest_name. It returns sev-es or sev if either is found in guest name, otherwise it returns 0.</p>
+
+<h2 id="get_guest_regcode">get_guest_regcode</h2>
+
+<pre><code>get_guest_regcode(separator =&gt; &#39;string separator&#39;)</code></pre>
+
+<p>Pass guest registration code in dynamically via GUEST_SCC_REGCODE and GUEST_SCC_REGCODE_LTSS. If they are not provided, SCC_REGCODE and SCC_REGCODE_LTSS_15 will be used. If there are multiple guest patterns , their corresponding registration codes should also be specified in the same order and separated by separators like pipe, comma or others. Empty value is allowed. For example, regcode_guest1|regcode_guest2|| regcode_guest4, because regcode_guest3 is emety, empty value is passed in to preserve order. For multiple guest patterns, an empty registration code for specific guest pattern will not be filled out by any default value and at the same time this means registration code is not needed for it at all. This subroutine has one argument separator and returns generated registration codes joined together by specified separator.</p>
+
+<h2 id="execute_over_ssh">execute_over_ssh</h2>
+
+<pre><code>execute_over_ssh(username =&gt; $user, address =&gt; $address,
+    command =&gt; $command, timeout =&gt; $timeout, assert =&gt; $assert)</code></pre>
+
+<p>Run command over passwordless ssh session. Arguments include username default value of which is &#39;root&#39;, address which can take the form of FQDN or IP and is mandatory, command to be executed, timeout value to wait before next step and assert which determines assertive call or not.</p>
+
+<h2 id="reboot_virtual_machine">reboot_virtual_machine</h2>
+
+<pre><code>reboot_virtual_machine(username =&gt; $user, address =&gt; $address, domain =&gt; $domain)</code></pre>
+
+<p>Reboot virtual machine by issuing &#39;reboot&#39; over ssh and then &#39;virsh command&#39; if &#39;reboot&#39; does not succeed and virtual machine domain name is given as arguement domain which is default to argument address if it is also a domain name. Address can also takes the form of FQDN and IP as long as it is reachable over ssh. And another argument username has the default value of &#39;root&#39; if no passed in value.</p>
+
+<h2 id="get_guest_settings">get_guest_settings</h2>
+
+<pre><code>get_guest_settings(settings =&gt; &#39;list of settings&#39;, separator =&gt; &#39;string separator&#39;)</code></pre>
+
+<p>Settings for guests can be provided just only once and then it should be replicated to all guests specified by GUEST_PATTERN, GUEST_LIST or GUEST. This subroutine has two arguments, including list of names of settings and separator. Multiple settings are seperated by separator comma by default. Values of settings are retrieved from testapi get_var. Generated settings and their values are put in a hash object and returns its reference.</p>
+
+<h2 id="reselect_openqa_console">reselect_openqa_console</h2>
+
+<p>Reselect named console in openQA test if concerned console is lost after detecting ssh port or needle. Arguments include address to be detected, console to be selected , needle to be checked on console, counter to be used for lost console detection, countdown value to be decreased at the end of each loopthe number of retries when detecting ssh port of address and delay before next ssh port detection.</p>
+
+<h2 id="select_backend_console">select_backend_console</h2>
+
+<p>Select corresponding ipmi or qemu backend console &#39;root-ssh&#39; or &#39;root-console&#39;. If argument init is set, select ipmi backend &#39;sol&#39; console. User can also set arguments console or wait to select cusotmized console in desired behavior.</p>
+
+<h2 id="double_check_xen_role">double_check_xen_role</h2>
+
+<p>Just only match bootmenu-xen-kernel needle was not enough for xen host if got Xen domain0 kernel panic(bsc#1192258). Need to double-check xen role after matched bootmenu-xen-kernel needle successfully.</p>
+
+<h2 id="check_kvm_modules">check_kvm_modules</h2>
+
+<p>Check whether kvm moduldes are successfully loaded on running system.</p>
+
+<h2 id="download_installation_iso">download_installation_iso</h2>
+
+<p>Download installation ISO to local directory with caching and error handling. Based on existing download_vm_import_disks pattern with proper retry logic.</p>
+
+<pre><code>my $local_path = download_installation_iso($iso_url, $target_dir);</code></pre>
+
+<p>Returns local path on success, undef on failure.</p>
+
+<h2 id="install_product_software">install_product_software</h2>
+
+<pre><code>install_product_software(package =&gt; &#39;package1,package2&#39;, pattern =&gt; &#39;pattern1
+    ,pattern2&#39;)</code></pre>
+
+<p>Install desired packages and patterns from existing product repositories if settings INSTALL_PRODUCT_PACKAGES and INSTALL_PRODUCT_PATTERNS are specified with packages and patterns separated by comma. User can also specify desired pacakges and patterns by passing in arguments package and pattern.</p>
 
 
 </body>
