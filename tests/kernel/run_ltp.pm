@@ -388,6 +388,13 @@ sub run {
     my $fin_msg = "### TEST $test->{name} COMPLETE >>> ";
     my $cmd_text = qq($test->{command}; echo "$fin_msg\$?.");
 
+    if ($test->{name} eq 'nm01_sh') {
+        # Overwrite nm01.sh with the version from data/ltp/nm01.sh
+        my $url = data_url('ltp/nm01.sh');
+        assert_script_run("curl -L $url -o /opt/ltp/testcases/bin/nm01.sh");
+        assert_script_run('chmod +x /opt/ltp/testcases/bin/nm01.sh');
+    }
+
     my $klog_stamp = "OpenQA::run_ltp.pm: Starting $test->{name}";
     my $start_time = thetime();
 
