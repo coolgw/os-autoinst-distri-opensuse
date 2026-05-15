@@ -906,7 +906,7 @@ sub wait_boot {
     my ($self, %args) = @_;
     my $bootloader_time = $args{bootloader_time} // ((is_pvm || is_ipmi) ? 300 : 100);
     my $textmode = $args{textmode};
-    my $ready_time = $args{ready_time} // ((check_var('VIRSH_VMM_FAMILY', 'hyperv') || is_ipmi) ? 500 : 300);
+    my $ready_time = $args{ready_time} // ((check_var('VIRSH_VMM_FAMILY', 'hyperv') || is_ipmi || is_s390x) ? 500 : 300);
     my $in_grub = $args{in_grub} // 0;
     my $enable_root_ssh = $args{enable_root_ssh} // 0;
 
