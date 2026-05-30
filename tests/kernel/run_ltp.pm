@@ -395,6 +395,18 @@ sub run {
         assert_script_run('chmod +x /opt/ltp/testcases/bin/nm01.sh');
     }
 
+    if ($test->{name} eq 'min_free_kbytes') {
+        # Overwrite min_free_kbytes.c with the version from data/ltp/min_free_kbytes.c
+        my $url = data_url('ltp/min_free_kbytes.c');
+        assert_script_run("ls -l /root/ltp/testcases/kernel/mem/tunable/min_free_kbytes.c");
+        assert_script_run("cat /root/ltp/testcases/kernel/mem/tunable/min_free_kbytes.c");
+        assert_script_run("curl -L $url -o /root/ltp/testcases/kernel/mem/tunable/min_free_kbytes.c");
+        assert_script_run("cat /root/ltp/testcases/kernel/mem/tunable/min_free_kbytes.c | grep  test_tune");
+        assert_script_run('make -C /root/ltp/testcases/kernel/mem/tunable/ min_free_kbytes');
+        assert_script_run('cp /root/ltp/testcases/kernel/mem/tunable/min_free_kbytes /opt/ltp/testcases/bin/');
+        assert_script_run("ls -l /opt/ltp/bin/");
+    }
+
     my $klog_stamp = "OpenQA::run_ltp.pm: Starting $test->{name}";
     my $start_time = thetime();
 
