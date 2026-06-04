@@ -385,6 +385,11 @@ sub run {
     $self->{ltp_env} = \%env;
     $self->{ltp_tinfo} = $tinfo;
 
+    if ($test->{name} eq 'mmapstress06') {
+        # mmapstress06 by default runs with '20' parameter in ltp runtest file, override to run without it
+        $test->{command} = 'mmapstress06';
+    }
+
     my $fin_msg = "### TEST $test->{name} COMPLETE >>> ";
     my $cmd_text = qq($test->{command}; echo "$fin_msg\$?.");
 
@@ -404,6 +409,18 @@ sub run {
         assert_script_run("cat /root/ltp/testcases/kernel/mem/tunable/min_free_kbytes.c | grep  test_tune");
         assert_script_run('make -C /root/ltp/testcases/kernel/mem/tunable/ min_free_kbytes');
         assert_script_run('cp /root/ltp/testcases/kernel/mem/tunable/min_free_kbytes /opt/ltp/testcases/bin/');
+        assert_script_run("ls -l /opt/ltp/bin/");
+    }
+
+    if ($test->{name} eq 'mmapstress06') {
+        # Overwrite mmapstress06.c with the version from data/ltp/mmapstress06.c
+        my $url = data_url('ltp/mmapstress06.c');
+        assert_script_run("ls -l /root/ltp/testcases/kernel/mem/mmapstress/mmapstress06.c");
+        assert_script_run("cat /root/ltp/testcases/kernel/mem/mmapstress/mmapstress06.c");
+        assert_script_run("curl -L $url -o /root/ltp/testcases/kernel/mem/mmapstress/mmapstress06.c");
+        assert_script_run("cat /root/ltp/testcases/kernel/mem/mmapstress/mmapstress06.c | grep needs_cgroup_ctrls");
+        assert_script_run('make -C /root/ltp/testcases/kernel/mem/mmapstress/ mmapstress06');
+        assert_script_run('cp /root/ltp/testcases/kernel/mem/mmapstress/mmapstress06 /opt/ltp/testcases/bin/');
         assert_script_run("ls -l /opt/ltp/bin/");
     }
 
