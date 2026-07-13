@@ -18,29 +18,21 @@ use hpc::utils 'get_slurm_version';
 use version_utils 'is_sle';
 use Utils::Logging 'export_logs_basic';
 
-our @all_tests_results;
-
 our $slurm_pkg = get_slurm_version(get_var('SLURM_VERSION', ''));
 
 sub run_tests ($slurm_conf) {
-    my $xmlfile = 'testresults.xml';
-    assert_script_run("touch $xmlfile");
-
     # always run basic tests
-    push(@all_tests_results, run_basic_tests());
+    run_basic_tests();
 
     if ($slurm_conf =~ /ha/) {
-        push(@all_tests_results, run_ha_tests());
+        run_ha_tests();
     } elsif ($slurm_conf =~ /accounting/) {
-        push(@all_tests_results, run_accounting_tests());
+        run_accounting_tests();
     } elsif ($slurm_conf =~ /nfs_db/) {
         # this set-up allows both, ha and accounting tests
-        push(@all_tests_results, run_accounting_tests());
-        push(@all_tests_results, run_ha_tests());
+        run_accounting_tests();
+        run_ha_tests();
     }
-
-    parse_test_results('HPC slurm tests', $xmlfile, @all_tests_results);
-    parse_extra_log('XUnit', "/tmp/$xmlfile");
 }
 
 ########################################
@@ -48,84 +40,44 @@ sub run_tests ($slurm_conf) {
 ## 1 master node, 2+ slave nodes      ##
 ########################################
 sub run_basic_tests() {
-    my @all_results;
-
-    my %test00 = t00_version_check();
-    push(@all_results, \%test00);
-
-    my %test01 = t01_basic();
-    push(@all_results, \%test01);
-
-    my %test02 = t02_basic();
-    push(@all_results, \%test02);
-
-    my %test03 = t03_basic();
-    push(@all_results, \%test03);
-
-    my %test04 = t04_basic();
-    push(@all_results, \%test04);
+    t00_version_check();
+    t01_basic();
+    t02_basic();
+    t03_basic();
+    t04_basic();
 
     if (is_sle('>15-SP2')) {
-        my %test05 = t05_basic();
-        push(@all_results, \%test05);
+        t05_basic();
     }
 
-    my %test06 = t06_basic();
-    push(@all_results, \%test06);
-
-    my %test07 = t07_basic();
-    push(@all_results, \%test07);
-
-    my %test08 = t08_basic();
-    push(@all_results, \%test08);
-
-    my %test09 = t09_basic();
-    push(@all_results, \%test09);
-
-    my %test10 = t10_basic();
-    push(@all_results, \%test10);
-
-    return @all_results;
+    t06_basic();
+    t07_basic();
+    t08_basic();
+    t09_basic();
+    t10_basic();
 }
 
 sub t00_version_check() {
-    my $description = 'Simple SINFO version print for ease of checking';
-
+    record_info('Version check', 'Simple SINFO version print for ease of checking');
     my $result = script_output('sinfo --version');
-    my $name = "Sinfo: slurm version check: $result";
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    record_info("Sinfo: slurm version check", $result);
 }
 
 sub t01_basic() {
-    my $name = 'Srun check: -w';
-    my $description = 'Basic SRUN test with -w option';
-
-    my $result = script_run("srun -w slave-node00 date");
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    record_info('Srun check: -w', 'Basic SRUN test with -w option');
+    assert_script_run("srun -w slave-node00 date");
 }
 
 sub t02_basic() {
-    my $name = 'Sinfo check';
-    my $description = 'Simple SINFO test';
-
-    my $result = script_run('sinfo');
-
-    ##TODO: add check of sinfo vs slurm.conf?
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    record_info('Sinfo check', 'Simple SINFO test');
+    assert_script_run('sinfo');
 }
 
 sub t03_basic() {
-    my $name = 'Sbatch test';
-    my $description = 'Basic SBATCH test';
+    record_info('Sbatch test', 'Basic SBATCH test');
     my $sbatch = 'slurm_sbatch.sh';
 
-    script_run("wget --quiet " . data_url("hpc/$sbatch") . " -O $sbatch");
+    assert_script_run("wget --quiet " . data_url("hpc/$sbatch") . " -O $sbatch");
     assert_script_run("chmod +x $sbatch");
     record_info('meminfo', script_output("cat /proc/meminfo"));
     my $result = script_output("sbatch $sbatch");
@@ -134,17 +86,13 @@ sub t03_basic() {
     ## sbatch is publishing some files, so the test should hang
     sleep(70);
     upload_logs('/tmp/sbatch1');
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
 }
 
 sub t04_basic() {
-    my $name = 'Slurm-torque test';
-    my $description = 'Basic slurm-torque test. https://fate.suse.com/323998';
+    record_info('Slurm-torque test', 'Basic slurm-torque test. https://fate.suse.com/323998');
     my $pbs = 'slurm_pbs.sh';
 
-    script_run("wget --quiet " . data_url("hpc/$pbs") . " -O $pbs");
+    assert_script_run("wget --quiet " . data_url("hpc/$pbs") . " -O $pbs");
     assert_script_run("chmod +x $pbs");
     my $result = script_output("sbatch $pbs");
     ## execution (wall time) time set to 1m and there is a sleep
@@ -154,51 +102,29 @@ sub t04_basic() {
     sleep(80);
     upload_logs('/tmp/Job_PBS_o');
     upload_logs('/tmp/Job_PBS_e');
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
 }
 
 sub t05_basic() {
-    my $name = 'PMIx Support in SLURM';
-    my $description = 'Basic check if pmix is present. https://jira.suse.com/browse/SLE-10802';
-    my $result = 0;
+    record_info('PMIx Support in SLURM', 'Basic check if pmix is present. https://jira.suse.com/browse/SLE-10802');
 
     my $pmi_versions = script_output("srun --mpi=list");
-    $result = 1 unless ($pmi_versions =~ m/pmix/);
-    record_info('INFO', script_output("srun --mpi=list"));
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    die "PMIx is not present in srun --mpi=list" unless ($pmi_versions =~ m/pmix/);
+    record_info('INFO', $pmi_versions);
 }
 
 sub t06_basic() {
-    my $name = 'Srun check: -N -n';
-    my $description = 'Basic SRUN test with -N and -n option';
+    record_info('Srun check: -N -n', 'Basic SRUN test with -N and -n option');
     my $cluster_nodes = get_required_var('CLUSTER_NODES');
-
-    my $result = script_run("srun -N $cluster_nodes -n $cluster_nodes date");
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    assert_script_run("srun -N $cluster_nodes -n $cluster_nodes date");
 }
 
 sub t07_basic() {
-    my $name = 'Srun check: -w';
-    my $description = 'Basic SRUN test with -w option on multiple nodes';
-    my $cluster_nodes = get_required_var('CLUSTER_NODES');
-
-    ##TODO: remove hardcoded slaves
-    my $result = script_run("srun -w slave-node00,slave-node01 date");
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    record_info('Srun check: -w', 'Basic SRUN test with -w option on multiple nodes');
+    assert_script_run("srun -w slave-node00,slave-node01 date");
 }
 
 sub t08_basic() {
-    my $name = 'pdsh-slurm over ssh';
-    my $description = 'Basic check of pdsh-slurm over ssh';
-    my $result = 0;
+    record_info('pdsh-slurm over ssh', 'Basic check of pdsh-slurm over ssh');
     # $slurm_pkg-munge is installed explicitly since slurm_23_02
     zypper_call("in pdsh pdsh-$slurm_pkg");
 
@@ -207,45 +133,26 @@ sub t08_basic() {
     my @sinfo_nodeaddr = (split ' ', $sinfo_nodeaddr);
 
     foreach my $i (@sinfo_nodeaddr) {
-        if (index($pdsh_nodes, $i) == -1) {
-            $result = 1;
-            last;
-        }
+        die "Node $i not found in pdsh nodes output over ssh" if (index($pdsh_nodes, $i) == -1);
     }
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
 }
 
 sub t09_basic() {
-    my $name = 'Second slurm partition';
-    my $description = 'Run srun jobs against non-default partition';
+    record_info('Second slurm partition', 'Run srun jobs against non-default partition');
     my $cluster_nodes = get_required_var('CLUSTER_NODES');
-
-    my $result = script_run("srun --partition=minor -N $cluster_nodes date");
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    assert_script_run("srun --partition=minor -N $cluster_nodes date");
 }
 
 sub t10_basic() {
-    my $name = 'pdsh-slurm over mrsh';
-    my $description = 'Basic check of pdsh-slurm over mrsh';
-    my $result = 0;
+    record_info('pdsh-slurm over mrsh', 'Basic check of pdsh-slurm over mrsh');
 
     my $sinfo_nodeaddr = script_output('sinfo -a --Format=nodeaddr -h');
     my $pdsh_nodes = script_output("runuser -l nobody -c 'pdsh -R mrsh -P minor /usr/bin/hostname'");
     my @sinfo_nodeaddr = (split ' ', $sinfo_nodeaddr);
 
     foreach my $i (@sinfo_nodeaddr) {
-        if (index($pdsh_nodes, $i) == -1) {
-            $result = 1;
-            last;
-        }
+        die "Node $i not found in pdsh nodes output over mrsh" if (index($pdsh_nodes, $i) == -1);
     }
-
-    my %results = generate_results($name, $description, $result);
-    return %results;
 }
 
 #############################################
@@ -253,18 +160,11 @@ sub t10_basic() {
 #############################################
 
 sub run_accounting_tests() {
-    my @all_results;
-
-    my %test01 = t01_accounting();
-    push(@all_results, \%test01);
-
-    return @all_results;
+    t01_accounting();
 }
 
 sub t01_accounting() {
-    my $name = 'Slurm accounting';
-    my $description = 'Basic check for slurm accounting cmd';
-    my $result = 0;
+    record_info('Slurm accounting', 'Basic check for slurm accounting cmd');
     my %users = (
         'user_1' => 'Sebastian',
         'user_2' => 'Egbert',
@@ -273,60 +173,56 @@ sub t01_accounting() {
     );
 
     foreach my $key (keys %{users}) {
-        script_run("useradd -m -p \$(openssl passwd -1 $testapi::password) $users{$key}");
+        assert_script_run("useradd -m -p \$(openssl passwd -1 $testapi::password) $users{$key}");
     }
 
     my $cluster = script_output('sacctmgr -n -p list cluster');
 
-    if (index($cluster, 'linux') == -1) {
-        #cluster not successfully added
-        $result = 1;
-        goto FAIL;
-    }
+    die "Cluster 'linux' was not successfully added" if (index($cluster, 'linux') == -1);
 
     ### Create accounts in org=UNI_X
-    script_run("sacctmgr -i add account UNI_X_IT Description=\"IT at UNI_X\" Organization=UNI_X");
-    script_run("sacctmgr -i add account UNI_X_Math Description=\"Math at ORG_X\" Organization=UNI_X");
+    assert_script_run("sacctmgr -i add account UNI_X_IT Description=\"IT at UNI_X\" Organization=UNI_X");
+    assert_script_run("sacctmgr -i add account UNI_X_Math Description=\"Math at ORG_X\" Organization=UNI_X");
     #Add users associated with account in org=UNI_X
-    script_run("sacctmgr -i create user name=$users{user_1} DefaultAccount=UNI_X_Math");
-    script_run("sacctmgr -i create user name=Jose DefaultAccount=UNI_X_Math");
-    script_run("sacctmgr -i create user name=$users{user_2} DefaultAccount=UNI_X_IT");
-    script_run("sacctmgr -i create user name=Christian DefaultAccount=UNI_X_IT");
+    assert_script_run("sacctmgr -i create user name=$users{user_1} DefaultAccount=UNI_X_Math");
+    assert_script_run("sacctmgr -i create user name=Jose DefaultAccount=UNI_X_Math");
+    assert_script_run("sacctmgr -i create user name=$users{user_2} DefaultAccount=UNI_X_IT");
+    assert_script_run("sacctmgr -i create user name=Christian DefaultAccount=UNI_X_IT");
 
     ### Create accounts in org=UNI_Y
-    script_run("sacctmgr -i add account UNI_Y_Physics Description=\"UNI_Y\" Organization=UNI_Y");
-    script_run("sacctmgr -i add account UNI_Y_Biology Description=\"UNI_Y\" Organization=UNI_Y");
+    assert_script_run("sacctmgr -i add account UNI_Y_Physics Description=\"UNI_Y\" Organization=UNI_Y");
+    assert_script_run("sacctmgr -i add account UNI_Y_Biology Description=\"UNI_Y\" Organization=UNI_Y");
     #Add users associated with account in org=UNI_Y
-    script_run("sacctmgr -i create user name=Joe DefaultAccount=UNI_Y_Physics");
-    script_run("sacctmgr -i create user name=Noah DefaultAccount=UNI_Y_Biology");
-    script_run("sacctmgr -i create user name=$users{user_4} DefaultAccount=UNI_Y_Physics");
-    script_run("sacctmgr -i create user name=$users{user_3} DefaultAccount=UNI_Y_Biology");
+    assert_script_run("sacctmgr -i create user name=Joe DefaultAccount=UNI_Y_Physics");
+    assert_script_run("sacctmgr -i create user name=Noah DefaultAccount=UNI_Y_Biology");
+    assert_script_run("sacctmgr -i create user name=$users{user_4} DefaultAccount=UNI_Y_Physics");
+    assert_script_run("sacctmgr -i create user name=$users{user_3} DefaultAccount=UNI_Y_Biology");
 
-    script_run('sacctmgr show account');
-    script_run('sacctmgr show associations');
-    record_info('INFO', script_run('sacctmgr show account'));
+    assert_script_run('sacctmgr show account');
+    assert_script_run('sacctmgr show associations');
+    record_info('INFO', script_output('sacctmgr show account'));
 
     my $current_user = $testapi::username;
     $testapi::username = $users{user_1};
     my $prompt = $testapi::username . '@' . get_required_var('HOSTNAME') . ':~> ';
     record_info "$testapi::username", "ok";
     select_user_serial_terminal($prompt);
-    script_run("srun --account=UNI_X_Math -w slave-node00,slave-node01 date");
+    assert_script_run("srun --account=UNI_X_Math -w slave-node00,slave-node01 date");
     type_string("su - $users{user_2}", lf => 1);
     wait_serial("Password:"); type_string("$testapi::password", lf => 1);
 
     $testapi::username = $users{user_2};
-    script_run("srun --account=UNI_X_IT -N 2 -x master-node01,slave-node02 hostname");
+    assert_script_run("srun --account=UNI_X_IT -N 2 -x master-node01,slave-node02 hostname");
     $testapi::username = $users{user_3};
     type_string("su - $users{user_3}", lf => 1);
     wait_serial("Password:"); type_string("$testapi::password", lf => 1);
 
-    script_run("srun --account=UNI_Y_Biology -N 3 -x master-node01,slave-node02 date");
+    assert_script_run("srun --account=UNI_Y_Biology -N 3 -x master-node01,slave-node02 date");
     $testapi::username = $users{user_4};
     $prompt = $testapi::username . '@' . get_required_var('HOSTNAME') . ':~> ';
     type_string("su - $users{user_4}", lf => 1);
     wait_serial("Password:"); type_string("$testapi::password", lf => 1);
-    script_run("srun --account=UNI_Y_Physics -N 3 -x master-node01,slave-node02 hostname");
+    assert_script_run("srun --account=UNI_Y_Physics -N 3 -x master-node01,slave-node02 hostname");
 
     select_serial_terminal;
     # this is required; see: bugzilla#1150565?
@@ -340,16 +236,14 @@ sub t01_accounting() {
     my $jobs = script_output("sacct -n -p --starttime 2010-01-01 --format=User,Account,JobID,Jobname,partition,state,time,start,end,elapsed,MaxRss,MaxVMSize,nnodes,ncpus,nodelist");
 
     #check if there are expected srun jobs being recorded in the accounting db
-    $result = 1 unless (($jobs =~ /$users{user_1}/) &&
+    unless (($jobs =~ /$users{user_1}/) &&
         ($jobs =~ /$users{user_2}/) &&
         ($jobs =~ /$users{user_3}/) &&
-        ($jobs =~ /$users{user_4}/));
+        ($jobs =~ /$users{user_4}/)) {
+        die "Not all expected jobs found in sacct db output!";
+    }
 
     record_info('INFO DB', "$jobs");
-
-  FAIL:
-    my %results = generate_results($name, $description, $result);
-    return %results;
 }
 
 #####################################
@@ -357,20 +251,12 @@ sub t01_accounting() {
 #####################################
 
 sub run_ha_tests() {
-    my @all_results;
-
-    my %test01 = t01_ha();
-    push(@all_results, \%test01);
-
-    my %test02 = t02_ha();
-    push(@all_results, \%test02);
-
-    return @all_results;
+    t01_ha();
+    t02_ha();
 }
 
 sub t01_ha() {
-    my $name = 'scontrol: slurm ctl fail-over';
-    my $description = 'HPC cluster with 2 slurm ctls where one is taking over gracefully';
+    record_info('scontrol: slurm ctl fail-over', 'HPC cluster with 2 slurm ctls where one is taking over gracefully');
     my $cluster_nodes = get_required_var('CLUSTER_NODES');
     my $result = 1;
     my @all_results;
@@ -379,8 +265,8 @@ sub t01_ha() {
         if ($i == 50) {
             assert_script_run('scontrol takeover');
         }
-        $result = script_run("srun -N $cluster_nodes date", timeout => 90);
-        push(@all_results, $result);
+        my $res = script_run("srun -N $cluster_nodes date", timeout => 90);
+        push(@all_results, $res);
     }
 
     foreach (@all_results) {
@@ -390,13 +276,11 @@ sub t01_ha() {
         }
     }
 
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    die "All srun attempts failed during slurm ctl fail-over!" if ($result != 0);
 }
 
 sub t02_ha() {
-    my $name = 'kill: Slurm ctl fail-over';
-    my $description = 'HPC cluster with 2 slurm ctls where one is killed';
+    record_info('kill: Slurm ctl fail-over', 'HPC cluster with 2 slurm ctls where one is killed');
     my $cluster_nodes = get_required_var('CLUSTER_NODES');
     my $result = 1;
     my @all_results;
@@ -409,8 +293,8 @@ sub t02_ha() {
             my $pidofslurmctld = script_output('pidof slurmctld');
             script_run("kill $pidofslurmctld");
         }
-        $result = script_run("srun -N $cluster_nodes date -R", timeout => 90);
-        push(@all_results, $result);
+        my $res = script_run("srun -N $cluster_nodes date -R", timeout => 90);
+        push(@all_results, $res);
     }
 
     foreach (@all_results) {
@@ -420,8 +304,7 @@ sub t02_ha() {
         }
     }
 
-    my %results = generate_results($name, $description, $result);
-    return %results;
+    die "All srun attempts failed after killing slurmctld!" if ($result != 0);
 }
 
 ################################################
@@ -429,11 +312,7 @@ sub t02_ha() {
 ################################################
 
 sub run_accounting_ha_tests() {
-    my @all_results;
-
     ##TODO
-
-    return @all_results;
 }
 
 ########################################################
