@@ -26,6 +26,9 @@ sub run ($self) {
 
     set_hostname(get_var('HOSTNAME', 'susetest'));
 
+    # Remove known broken maintenance repository to prevent zypper refresh failures
+    script_run "zypper rr SUSE_Updates_SLE-Product-SLES_15-SP6-LTSS_x86_64_45008";
+
     if (get_var('HPC_REPO')) {
         my $repo = get_var('HPC_REPO');
         my $reponame = get_required_var('HPC_REPONAME');
