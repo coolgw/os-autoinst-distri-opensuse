@@ -400,6 +400,18 @@ sub run {
         assert_script_run('chmod +x /opt/ltp/testcases/bin/nm01.sh');
     }
 
+    if ($test->{name} eq 'madvise09') {
+        # Overwrite min_free_kbytes.c with the version from data/ltp/min_free_kbytes.c
+        my $url = data_url('ltp/madvise09.c');
+        assert_script_run("ls -l /root/ltp/testcases/kernel/syscalls/madvise/madvise09.c");
+        assert_script_run("cat /root/ltp/testcases/kernel/syscalls/madvise/madvise09.c");
+        assert_script_run("curl -L $url -o /root/ltp/testcases/kernel/syscalls/madvise/madvise09.c");
+        assert_script_run("cat /root/ltp/testcases/kernel/syscalls/madvise/madvise09.c | grep  BASE_SWAP_LIMIT");
+        assert_script_run('make -C /root/ltp/testcases/kernel/syscalls/madvise/ madvise09');
+        assert_script_run('cp /root/ltp/testcases/kernel/syscalls/madvise/madvise09 /opt/ltp/testcases/bin/');
+        assert_script_run("ls -l /opt/ltp/bin/");
+    }
+
     if ($test->{name} eq 'min_free_kbytes') {
         # Overwrite min_free_kbytes.c with the version from data/ltp/min_free_kbytes.c
         my $url = data_url('ltp/min_free_kbytes.c');
