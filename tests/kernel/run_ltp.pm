@@ -390,6 +390,11 @@ sub run {
         $test->{command} = 'mmapstress06';
     }
 
+    if ($test->{name} eq 'madvise09') {
+        # Run madvise09 with 200 iterations
+        $test->{command} = 'madvise09 -i200';
+    }
+
     my $fin_msg = "### TEST $test->{name} COMPLETE >>> ";
     my $cmd_text = qq($test->{command}; echo "$fin_msg\$?.");
 
