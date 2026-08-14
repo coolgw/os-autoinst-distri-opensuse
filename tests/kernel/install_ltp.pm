@@ -282,6 +282,10 @@ sub run {
     my $is_ima = $cmd_file =~ m/^ima$/i;
     my $grub_param;
 
+    assert_script_run("udevadm control --children-max=30");
+    record_info("Machine info", script_output('lscpu'));
+    record_info("Machine info", script_output('free -h'));
+
     if ($inst_ltp !~ /(repo|git)/i) {
         die 'INSTALL_LTP must contain "git" or "repo"';
     }
