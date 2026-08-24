@@ -57,10 +57,12 @@ static void run_test(void)
 
 		tst_res(TINFO, "Dirtying %zu bytes in child", map_size);
 
+		// Decrease sleep interval or yield every few pages
 		for (size_t i = 0; i < map_size; i += page_size) {
 			mmapaddr[i] = 'a';
-			if ((i % (2 * 1024 * 1024)) == 0)
-				usleep(1000);
+
+			if (i >= mem_limit && !(i % (2 * 1024 * 1024)))
+				usleep(100000);
 		}
 
 		SAFE_CG_SCANF(cg_child, "memory.swap.current", "%lu", &cg_swap_after);
