@@ -37,10 +37,13 @@ static void run_test(void)
 	/* Set memory limit to force swapping of the mapping */
 	SAFE_CG_PRINTF(cg_child, "memory.max", "%lu", (unsigned long)mem_limit);
 
-	if (TST_CG_VER_IS_V1(cg_child, "memory"))
+	if (TST_CG_VER_IS_V1(cg_child, "memory")) {
 		SAFE_CG_PRINT(cg_child, "memory.swap.max", "-1");
-	else
+	} else {
 		SAFE_CG_PRINT(cg_child, "memory.swap.max", "max");
+		SAFE_CG_PRINTF(cg_child, "memory.high", "%lu",
+			       (unsigned long)(mem_limit - mem_limit / 8));
+	}
 
 	child_pid = SAFE_FORK();
 	if (!child_pid) {
@@ -57,12 +60,10 @@ static void run_test(void)
 
 		tst_res(TINFO, "Dirtying %zu bytes in child", map_size);
 
-		// Decrease sleep interval or yield every few pages
 		for (size_t i = 0; i < map_size; i += page_size) {
 			mmapaddr[i] = 'a';
-
-			if (i >= mem_limit && !(i % (2 * 1024 * 1024)))
-				usleep(100000);
+			if ((i % (2 * 1024 * 1024)) == 0)
+				usleep(1000);
 		}
 
 		SAFE_CG_SCANF(cg_child, "memory.swap.current", "%lu", &cg_swap_after);

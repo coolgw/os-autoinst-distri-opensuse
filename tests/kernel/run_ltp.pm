@@ -430,6 +430,9 @@ sub run {
     }
 
     if ($test->{name} eq 'mmapstress06') {
+        my $url1 = data_url('ltp/tst_cgroup.c');
+        assert_script_run("curl -L $url1 -o /root/ltp/lib/tst_cgroup.c");
+
         # Overwrite mmapstress06.c with the version from data/ltp/mmapstress06.c
         my $url = data_url('ltp/mmapstress06.c');
         assert_script_run("ls -l /root/ltp/testcases/kernel/mem/mmapstress/mmapstress06.c");
@@ -439,6 +442,7 @@ sub run {
         assert_script_run('make -C /root/ltp/testcases/kernel/mem/mmapstress/ mmapstress06');
         assert_script_run('cp /root/ltp/testcases/kernel/mem/mmapstress/mmapstress06 /opt/ltp/testcases/bin/');
         assert_script_run("ls -l /opt/ltp/bin/");
+
     }
 
     my $klog_stamp = "OpenQA::run_ltp.pm: Starting $test->{name}";
