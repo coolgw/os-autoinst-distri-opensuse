@@ -97,6 +97,22 @@ sub run {
         );
     }
 
+    # Install strace for debugging
+    install_package('strace', trup_continue => 1, trup_apply => 1);
+
+    my $debug_cmd;
+    if ($install =~ /git/i) {
+        $debug_cmd = "strace -c -f ./test/send-zerocopy.t";
+    } else {
+        $debug_cmd = "cd $test_dir && mkdir -p test && ln -sf ../send-zerocopy.t test/send-zerocopy.t && strace -c -f ./test/send-zerocopy.t";
+    }
+
+    my $debug_output = script_output($debug_cmd, timeout => 600, proceed_on_failure => 1);
+    record_info("STRACE SUMMARY", $debug_output);
+
+    # ONLY run send-zerocopy.t and stop the execution here as requested
+    #return;
+
     if ($install =~ /git/i) {
         assert_script_run("echo 'TEST_EXCLUDE=\"$test_exclude\"' > test/config.local") if $test_exclude;
         $out = script_output(
