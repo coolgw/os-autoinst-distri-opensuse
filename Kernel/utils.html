@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>lib/Kernel/utils.pm</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel='stylesheet' href='../style.css' />
+</head>
+
+<body>
+
+
+
+<ul id="index"><li><a href="../index.html"><i>&lt;= Back to file list</i></a></li>
+  <li>
+    <ul>
+      <li><a href="#is_debugfs_mounted">is_debugfs_mounted</a></li>
+      <li><a href="#enable_debugfs">enable_debugfs</a></li>
+      <li><a href="#get_kernel_config">get_kernel_config</a></li>
+    </ul>
+  </li>
+</ul><h1>lib/Kernel/utils.pm</h1>
+
+<h2 id="is_debugfs_mounted">is_debugfs_mounted</h2>
+
+<pre><code>is_debugfs_mounted();</code></pre>
+
+<p>Checks whether debugfs is mounted at /sys/kernel/debug, same check as blktests&#39; <code>_have_debugfs()</code>. Returns true/false.</p>
+
+<h2 id="enable_debugfs">enable_debugfs</h2>
+
+<pre><code>enable_debugfs();</code></pre>
+
+<p>Mounts debugfs at /sys/kernel/debug (e.g. on SLE 16.1+, where it is disabled by default per PED-8812).</p>
+
+<h2 id="get_kernel_config">get_kernel_config</h2>
+
+<pre><code>get_kernel_config();</code></pre>
+
+<p>Locates the running kernel&#39;s config file (<code>/boot/config-$(uname -r)</code>, falling back to <code>/usr/lib/modules/$(uname -r)/config</code> and then <code>/proc/config.gz</code>) and records its full contents via <code>record_info()</code>, prefixed with a comment naming the source file (as done in <code>LTP::utils::log_versions</code>).</p>
+
+
+</body>
+
+</html>
+
+

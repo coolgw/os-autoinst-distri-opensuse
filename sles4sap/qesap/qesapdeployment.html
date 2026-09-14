@@ -24,6 +24,7 @@
           <li><a href="#qesap_get_variables">qesap_get_variables</a></li>
           <li><a href="#qesap_ansible_create_section">qesap_ansible_create_section</a></li>
           <li><a href="#qesap_venv_cmd_exec">qesap_venv_cmd_exec</a></li>
+          <li><a href="#check_bsc1258357">_check_bsc1258357</a></li>
           <li><a href="#qesap_py">qesap_py</a></li>
           <li><a href="#qesap_pip">qesap_pip</a></li>
           <li><a href="#qesap_pip_install">qesap_pip_install</a></li>
@@ -61,14 +62,14 @@
           <li><a href="#qesap_add_server_to_hosts">qesap_add_server_to_hosts</a></li>
           <li><a href="#qesap_import_instances">qesap_import_instances</a></li>
           <li><a href="#qesap_export_instances">qesap_export_instances</a></li>
-        </ul>
-      </li>
-      <li><a href="#qesap_aws_delete_leftover_tgw_attachments">qesap_aws_delete_leftover_tgw_attachments</a></li>
-      <li><a href="#qesap_terraform_ansible_deploy_retry">qesap_terraform_ansible_deploy_retry</a></li>
-      <li><a href="#qesap_ansible_error_detection">qesap_ansible_error_detection</a></li>
-      <li><a href="#qesap_create_cidr_from_ip">qesap_create_cidr_from_ip</a>
-        <ul>
+          <li><a href="#qesap_aws_delete_leftover_tgw_attachments">qesap_aws_delete_leftover_tgw_attachments</a></li>
+          <li><a href="#qesap_terraform_ansible_deploy_retry">qesap_terraform_ansible_deploy_retry</a></li>
+          <li><a href="#qesap_ansible_error_detection">qesap_ansible_error_detection</a></li>
+          <li><a href="#qesap_create_cidr_from_ip">qesap_create_cidr_from_ip</a></li>
           <li><a href="#qesap_ssh_intrusion_detection">qesap_ssh_intrusion_detection</a></li>
+          <li><a href="#qesap_gcp_get_ncc_spokes">qesap_gcp_get_ncc_spokes</a></li>
+          <li><a href="#qesap_gcp_delete_ncc_spoke">qesap_gcp_delete_ncc_spoke</a></li>
+          <li><a href="#qesap_gcp_delete_leftover_ncc_spokes">qesap_gcp_delete_leftover_ncc_spokes</a></li>
         </ul>
       </li>
     </ul>
@@ -156,7 +157,15 @@ Timeout error is 124 (the one reported by timeout command line utility).</code><
 <dd>
 
 </dd>
+<dt id="PROGRESS---instead-of-the-command-output-print-a-dd-style-progress-to-stdout.-If-set-to-a-number-bigger-than-one-also-print-that-number-of-lines-from-the-output-after-the-command-finishes"><b>PROGRESS</b> - instead of the command output, print a <code>dd</code> style progress to stdout. If set to a number bigger than one, also print that number of lines from the output after the command finishes.</dt>
+<dd>
+
+</dd>
 </dl>
+
+<h3 id="check_bsc1258357">_check_bsc1258357</h3>
+
+<pre><code>Check system for bsc#1258357 and report findings, then fail the test.</code></pre>
 
 <h3 id="qesap_py">qesap_py</h3>
 
@@ -839,7 +848,7 @@ qesap_import_instances(&lt;$test_id&gt;)</code></pre>
 <pre><code>Downloads assets required for re-using infrastructure from previously exported test.
 qesap_export_instances()</code></pre>
 
-<h2 id="qesap_aws_delete_leftover_tgw_attachments">qesap_aws_delete_leftover_tgw_attachments</h2>
+<h3 id="qesap_aws_delete_leftover_tgw_attachments">qesap_aws_delete_leftover_tgw_attachments</h3>
 
 <pre><code>Delete leftover peering resources for AWS jobs that finished without cleaning up.
 This only works for resources created by jobs that run on the same openqa server 
@@ -853,7 +862,7 @@ that the current job is running on.</code></pre>
 </dd>
 </dl>
 
-<h2 id="qesap_terraform_ansible_deploy_retry">qesap_terraform_ansible_deploy_retry</h2>
+<h3 id="qesap_terraform_ansible_deploy_retry">qesap_terraform_ansible_deploy_retry</h3>
 
 <pre><code>qesap_terraform_ansible_deploy_retry( error_log=&gt;$error_log )
     error_log - ansible error log file name
@@ -877,7 +886,7 @@ Return 1: something went wrong or this function does not know what to do with th
 </dd>
 </dl>
 
-<h2 id="qesap_ansible_error_detection">qesap_ansible_error_detection</h2>
+<h3 id="qesap_ansible_error_detection">qesap_ansible_error_detection</h3>
 
 <pre><code>qesap_ansible_error_detection( error_log=&gt;$error_log )
 
@@ -897,7 +906,7 @@ Return:
 </dd>
 </dl>
 
-<h2 id="qesap_create_cidr_from_ip">qesap_create_cidr_from_ip</h2>
+<h3 id="qesap_create_cidr_from_ip">qesap_create_cidr_from_ip</h3>
 
 <pre><code>qesap_create_cidr_from_ip( proceed_on_failure )
 
@@ -922,6 +931,71 @@ Return:
 <dl>
 
 <dt id="PROVIDER---cloud-provider-name-as-from-PUBLIC_CLOUD_PROVIDER-setting1"><b>PROVIDER</b> - cloud provider name as from PUBLIC_CLOUD_PROVIDER setting</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_gcp_get_ncc_spokes">qesap_gcp_get_ncc_spokes</h3>
+
+<pre><code>qesap_gcp_get_ncc_spokes( [hub =&gt; $hub], [name =&gt; $name] )
+
+Queries GCP for Network Connectivity Center (NCC) spokes matching the given
+hub or spoke name.
+Return:
+ - Array ref of spoke HASH references
+ - Empty array ref on failure or if no spokes are found</code></pre>
+
+<dl>
+
+<dt id="hub---Optional-NCC-hub-name-to-filter-spokes-by"><b>hub</b> - Optional NCC hub name to filter spokes by</dt>
+<dd>
+
+</dd>
+<dt id="name---Optional-spoke-name-to-filter-by"><b>name</b> - Optional spoke name to filter by</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_gcp_delete_ncc_spoke">qesap_gcp_delete_ncc_spoke</h3>
+
+<pre><code>qesap_gcp_delete_ncc_spoke( name =&gt; $name, [wait =&gt; 1], [timeout =&gt; 300] )
+
+Deletes a GCP NCC spoke by name and optionally waits until deletion completes.
+Return:
+ - 1 if deletion succeeded or wait flag is 0
+ - 0 if wait timed out before deletion completed</code></pre>
+
+<dl>
+
+<dt id="name---Mandatory-spoke-name-to-delete"><b>name</b> - Mandatory spoke name to delete</dt>
+<dd>
+
+</dd>
+<dt id="wait---Optional-boolean-flag-to-wait-for-deletion-completion-default:-1"><b>wait</b> - Optional boolean flag to wait for deletion completion (default: 1)</dt>
+<dd>
+
+</dd>
+<dt id="timeout---Optional-max-seconds-to-wait-in-seconds-default:-300"><b>timeout</b> - Optional max seconds to wait in seconds (default: 300)</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h3 id="qesap_gcp_delete_leftover_ncc_spokes">qesap_gcp_delete_leftover_ncc_spokes</h3>
+
+<pre><code>qesap_gcp_delete_leftover_ncc_spokes( hub =&gt; $hub )
+
+Scans GCP NCC spokes attached to the given hub, identifies edge spokes left over
+from finished openQA jobs, and initiates deletion. Ignores the center spoke.
+Return:
+ - 0 if mandatory arguments are missing
+ - 1 on successful scan and cleanup execution</code></pre>
+
+<dl>
+
+<dt id="hub---Mandatory-NCC-hub-name-to-inspect"><b>hub</b> - Mandatory NCC hub name to inspect</dt>
 <dd>
 
 </dd>

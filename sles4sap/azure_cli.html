@@ -14,6 +14,7 @@
 <ul id="index"><li><a href="../index.html"><i>&lt;= Back to file list</i></a></li>
   <li><a href="#SYNOPSIS">SYNOPSIS</a>
     <ul>
+      <li><a href="#az">az</a></li>
       <li><a href="#az_version">az_version</a></li>
       <li><a href="#az_group_create">az_group_create</a></li>
       <li><a href="#az_group_name_get">az_group_name_get</a></li>
@@ -63,6 +64,7 @@
       <li><a href="#az_disk_create">az_disk_create</a></li>
       <li><a href="#az_resource_delete">az_resource_delete</a></li>
       <li><a href="#az_resource_list">az_resource_list</a></li>
+      <li><a href="#az_resource_tag">az_resource_tag</a></li>
       <li><a href="#az_validate_uuid_pattern">az_validate_uuid_pattern</a></li>
       <li><a href="#az_storage_blob_upload">az_storage_blob_upload</a></li>
       <li><a href="#az_storage_blob_lease_acquire">az_storage_blob_lease_acquire</a></li>
@@ -81,8 +83,7 @@
       <li><a href="#az_network_dns_link_list">az_network_dns_link_list</a></li>
       <li><a href="#az_network_dns_links_cleanup">az_network_dns_links_cleanup</a></li>
       <li><a href="#az_network_dns_zones_cleanup">az_network_dns_zones_cleanup</a></li>
-      <li><a href="#az_account_show">az_account_show</a></li>
-      <li><a href="#"></a></li>
+      <li><a href="#az_role_definition_list">az_role_definition_list</a></li>
     </ul>
   </li>
 </ul><h1>lib/sles4sap/azure_cli.pm</h1>
@@ -90,6 +91,34 @@
 <h1 id="SYNOPSIS">SYNOPSIS</h1>
 
 <p>Library to compose and run Azure cli commands</p>
+
+<h2 id="az">az</h2>
+
+<pre><code>az(az_args =&gt; &#39;group list&#39; [, query =&gt; &#39;[].name&#39;]);</code></pre>
+
+<p>Executes az cli command specified. Commands are executed with `-o json` Returns perl data structure containing return code, command output, errors.</p>
+
+<p>Example: { rc =&gt; &#39;0&#39;, output =&gt; [&#39;group_name_a&#39;, &#39;group_name_b&#39;], error =&gt; &#39;&#39; }</p>
+
+<dl>
+
+<dt id="az_args---Specify-arguments-passed-to-az-cli"><b>az_args</b> - Specify arguments passed to `az cli`</dt>
+<dd>
+
+</dd>
+<dt id="query---specify---query"><b>query</b> - specify `--query`</dt>
+<dd>
+
+</dd>
+<dt id="quiet---pass-quiet-to-azure-cli-commands"><b>quiet</b> - pass <b>quiet</b> to azure cli commands</dt>
+<dd>
+
+</dd>
+<dt id="timeout---override-default-bmwqemu-timeout-for-az-cli-command"><b>timeout</b> - override default bmwqemu timeout for `az cli` command</dt>
+<dd>
+
+</dd>
+</dl>
 
 <h2 id="az_version">az_version</h2>
 
@@ -115,13 +144,17 @@
 <dd>
 
 </dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-Azure-resources"><b>tags</b> - optional string of space separated tags to apply to the Azure resources</dt>
+<dd>
+
+</dd>
 </dl>
 
 <h2 id="az_group_name_get">az_group_name_get</h2>
 
 <pre><code>my $ret = az_group_name_get();</code></pre>
 
-<p>Get the name of all existing Resource Group in the current subscription. By default the output is an array of strings. Output can be modified using <b>$args{query}</b>.</p>
+<p>Get the name of all existing Resource Group in the current subscription. By default the output is an array of strings. Output is always an hash with `data` and `err` keys: `data` is the decode_json of the stdout. The internal data structure can change accordingly to what is provided via <b>query</b> `err` is the stderr string, key is always present but it could have empty value.</p>
 
 <dl>
 
@@ -153,7 +186,7 @@
 
 <pre><code>az_group_exists(name =&gt; &#39;resource group name&#39; [, quiet=&gt;&#39;pssst!&#39;]);</code></pre>
 
-<p>Check if specified resource group exists. Returns whatever &#39;az group exist&#39; is returning that usually is string <b>true</b> or <b>false</b>.</p>
+<p>Returns non-empty value if resource group exists, otherwise <b>undef</b></p>
 
 <dl>
 
@@ -202,6 +235,10 @@
 
 </dd>
 <dt id="subnet_prefixes---subnet-ip-address-space.-Default-192.168.0.0-24"><b>subnet_prefixes</b> - subnet ip address space. Default 192.168.0.0/24</dt>
+<dd>
+
+</dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-virtual-network"><b>tags</b> - optional string of space separated tags to apply to the virtual network</dt>
 <dd>
 
 </dd>
@@ -273,6 +310,10 @@
 <dd>
 
 </dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-NSG"><b>tags</b> - optional string of space separated tags to apply to the NSG</dt>
+<dd>
+
+</dd>
 </dl>
 
 <h2 id="az_network_nsg_rule_create">az_network_nsg_rule_create</h2>
@@ -336,6 +377,10 @@
 <dd>
 
 </dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-PubIP"><b>tags</b> - optional string of space separated tags to apply to the PubIP</dt>
+<dd>
+
+</dd>
 </dl>
 
 <h2 id="az_network_publicip_get">az_network_publicip_get</h2>
@@ -383,6 +428,10 @@
 
 </dd>
 <dt id="public_ip---add-to-the-NAT-Gateway-a-public-IP"><b>public_ip</b> - add to the NAT Gateway a public IP</dt>
+<dd>
+
+</dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-the-NAT-Gateway"><b>tags</b> - optional string of space separated tags to the NAT Gateway</dt>
 <dd>
 
 </dd>
@@ -434,6 +483,10 @@
 
 </dd>
 <dt id="fip---optionally-add---private-ip-address"><b>fip</b> - optionally add --private-ip-address</dt>
+<dd>
+
+</dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-load-balancer"><b>tags</b> - optional string of space separated tags to apply to the load balancer</dt>
 <dd>
 
 </dd>
@@ -553,6 +606,10 @@
 <dd>
 
 </dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-availability-set"><b>tags</b> - optional string of space separated tags to apply to the availability set</dt>
+<dd>
+
+</dd>
 </dl>
 
 <h2 id="az_vm_as_list">az_vm_as_list</h2>
@@ -604,6 +661,10 @@
 
 </dd>
 <dt id="source---URI-of-the-vhd-disk-from-which-the-image-will-be-created"><b>source</b> - URI of the vhd disk from which the image will be created</dt>
+<dd>
+
+</dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-image"><b>tags</b> - optional string of space separated tags to apply to the image</dt>
 <dd>
 
 </dd>
@@ -693,7 +754,11 @@
 <dd>
 
 </dd>
-<dt id="tags---reference-to-a-list-of-tags-to-apply-to-the-VM"><b>tags</b> - reference to a list of tags to apply to the VM</dt>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-VM"><b>tags</b> - optional string of space separated tags to apply to the VM</dt>
+<dd>
+
+</dd>
+<dt id="debug---if-not-zero-add---debug"><b>debug</b> - if not zero add --debug</dt>
 <dd>
 
 </dd>
@@ -878,6 +943,10 @@
 
 </dd>
 <dt id="pubip_name---existing-public-ip-name"><b>pubip_name</b> - existing public ip name</dt>
+<dd>
+
+</dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-NIC"><b>tags</b> - optional string of space separated tags to apply to the NIC</dt>
 <dd>
 
 </dd>
@@ -1073,6 +1142,14 @@
 <dd>
 
 </dd>
+<dt id="timeout---max-expected-execution-time-for-a-single-az-command---default-240sec"><b>timeout</b> - max expected execution time for a single az command - default 240sec</dt>
+<dd>
+
+</dd>
+<dt id="verbose---use-tee-to-print-the-output-also-on-the-terminal-while-redirecting-to-file.-Default-0"><b>verbose</b> - use tee to print the output also on the terminal while redirecting to file. Default 0</dt>
+<dd>
+
+</dd>
 </dl>
 
 <h2 id="az_vm_identity_assign">az_vm_identity_assign</h2>
@@ -1117,6 +1194,10 @@ Return a validated systemAssignedIdentity ID or die.</code></pre>
 
 </dd>
 <dt id="name---name-for-the-storage-account-to-be-created.-Storage-account-name-must-be-between-3-and-24-characters-in-length-and-use-numbers-and-lower-case-letters-only"><b>name</b> - name for the storage account to be created. Storage account name must be between 3 and 24 characters in length and use numbers and lower-case letters only.</dt>
+<dd>
+
+</dd>
+<dt id="tags---optional-string-of-space-separated-tags-to-apply-to-the-storage-account"><b>tags</b> - optional string of space separated tags to apply to the storage account</dt>
 <dd>
 
 </dd>
@@ -1297,7 +1378,7 @@ Return a validated systemAssignedIdentity ID or die.</code></pre>
 
 <pre><code>az_resource_list([resource_group=&gt;$resource_group, query=&gt;$query, output=&gt;$output]);</code></pre>
 
-<p>Lists existing az resources based on arguments provided. Calling function without any argument returns full information from all existing resource groups. Returns decoded json structure if json format is requested, otherwise whole output is a string.</p>
+<p>Lists existing az resources based on arguments provided. Calling function without any argument returns full information from all existing resource groups. Returns data structure returned from az cli json output.</p>
 
 <dl>
 
@@ -1306,6 +1387,24 @@ Return a validated systemAssignedIdentity ID or die.</code></pre>
 
 </dd>
 <dt id="query-Jmespath-query"><b>query</b> Jmespath query</dt>
+<dd>
+
+</dd>
+</dl>
+
+<h2 id="az_resource_tag">az_resource_tag</h2>
+
+<pre><code>az_resource_tag(resource_ids=&gt;[&#39;/id/a&#39;, &#39;/id/b&#39;], tags=&gt;[&#39;pcw_ignore=1&#39;]);</code></pre>
+
+<p>Tags list of resource IDs with list of tags</p>
+
+<dl>
+
+<dt id="resource_ids-List-of-existing-resource-id-that-will-be-tagged"><b>resource_ids</b> List of existing resource id that will be tagged</dt>
+<dd>
+
+</dd>
+<dt id="tags-List-of-tags"><b>tags</b> List of tags</dt>
 <dd>
 
 </dd>
@@ -1346,7 +1445,7 @@ identifiers for Azure resources.</code></pre>
 <pre><code>az_storage_blob_upload(
     container_name=&gt;&#39;somecontainer&#39;,
     storage_account_name=&gt;&#39;storageaccount&#39;,
-    file=&gt;&#39;somefilename&#39; [, timeout=&gt;42]);</code></pre>
+    file=&gt;&#39;somefilename&#39; [, timeout=&gt;42, name=&gt;&#39;blob_name.txt&#39;]);</code></pre>
 
 <p>Uploads file to a storage container.</p>
 
@@ -1364,6 +1463,10 @@ identifiers for Azure resources.</code></pre>
 <dd>
 
 </dd>
+<dt id="name-Target-blob-filename.-Optional"><b>name</b> Target blob filename. (Optional)</dt>
+<dd>
+
+</dd>
 <dt id="timeout-Timeout-for-az-command.-Default:-90s"><b>timeout</b> Timeout for az command. Default: 90s</dt>
 <dd>
 
@@ -1376,7 +1479,8 @@ identifiers for Azure resources.</code></pre>
     container_name       =&gt; &#39;somecontainer&#39;,
     storage_account_name =&gt; &#39;storageaccount&#39;,
     blob_name            =&gt; &#39;somefilename&#39;,
-    lease_duration       =&gt; 60
+    lease_duration       =&gt; 60,
+    timeout =&gt; 120
 );</code></pre>
 
 <p>Acquire a lease for a storage blob. The function returns a UUID which is then required to modify the file and gives the UUID owner exclusive rights.</p>
@@ -1409,6 +1513,10 @@ identifiers for Azure resources.</code></pre>
 <dd>
 
 </dd>
+<dt id="timeout-az-command-timeout:-default-of-wait_serial-https:-open.qa-api-testapi-script_output"><b>timeout</b> az command timeout: default of `wait_serial` https://open.qa/api/testapi/#script_output</dt>
+<dd>
+
+</dd>
 <dt id="lease_duration-Specifies-the-duration-of-the-lease-in-seconds.-A-non-infinite-lease-can-be-between-15-and-60-seconds.-A-value-of--1-indicates-an-infinite-lease.-Default:--1-infinite"><b>lease_duration</b> Specifies the duration of the lease in seconds. A non-infinite lease can be between 15 and 60 seconds. A value of -1 indicates an infinite lease. Default: -1 (infinite).</dt>
 <dd>
 
@@ -1419,7 +1527,8 @@ identifiers for Azure resources.</code></pre>
 
 <pre><code>az_storage_blob_list(
     container_name=&gt;&#39;somecontainer&#39;,
-    storage_account_name=&gt;&#39;storageaccount&#39; [, query=&gt;&#39;[].name&#39;]
+    storage_account_name=&gt;&#39;storageaccount&#39; [, query=&gt;&#39;[].name&#39;],
+    timeout =&gt; 120
 );</code></pre>
 
 <p>List information about storage blob(s) specified by <b>storage_account_name</b>, <b>container_name</b> and <b>query</b>.</p>
@@ -1435,6 +1544,10 @@ identifiers for Azure resources.</code></pre>
 
 </dd>
 <dt id="query-Query-in-jmespath-format"><b>query</b> Query in jmespath format</dt>
+<dd>
+
+</dd>
+<dt id="timeout-az-command-timeout:-default-of-wait_serial-https:-open.qa-api-testapi-script_output1"><b>timeout</b> az command timeout: default of `wait_serial` https://open.qa/api/testapi/#script_output</dt>
 <dd>
 
 </dd>
@@ -1575,6 +1688,10 @@ identifiers for Azure resources.</code></pre>
 <dd>
 
 </dd>
+<dt id="tags-optional-string-of-space-separated-tags-to-apply-to-the-private-DNS-zone"><b>tags</b> optional string of space separated tags to apply to the private DNS zone</dt>
+<dd>
+
+</dd>
 </dl>
 
 <h2 id="az_network_dns_zone_delete">az_network_dns_zone_delete</h2>
@@ -1653,7 +1770,7 @@ identifiers for Azure resources.</code></pre>
     name=&gt;&#39;link_to_rg_vnet&#39;
 );</code></pre>
 
-<p>Creates private DNS zone link between VNET and DNS zone.</p>
+<p>Creates private DNS zone link between VNET and DNS zone. Argument &#39;--registration-enabled&#39; controls whether the VNet&#39;s virtual machines automatically register their own DNS records in that private zone. Setting it to false (Common Use Cases) means Auto-Registration is disabled.</p>
 
 <dl>
 
@@ -1751,19 +1868,7 @@ identifiers for Azure resources.</code></pre>
 </dd>
 </dl>
 
-<h2 id="az_account_show">az_account_show</h2>
-
-<p>Get account informations, by default the ID. By default the output is an strings. Output can be modified using <b>$args{query}</b>.</p>
-
-<dl>
-
-<dt id="query---Modify-output-filter-using-jmespath-query.-Default:-id"><b>query</b> - Modify output filter using jmespath query. Default: &#39;id&#39;</dt>
-<dd>
-
-</dd>
-</dl>
-
-<h2 id=""></h2>
+<h2 id="az_role_definition_list">az_role_definition_list</h2>
 
 <p>List and return id about named role</p>
 

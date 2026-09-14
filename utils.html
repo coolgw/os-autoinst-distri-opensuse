@@ -34,6 +34,7 @@
       <li><a href="#zypper_call">zypper_call</a></li>
       <li><a href="#zypper_enable_install_dvd">zypper_enable_install_dvd</a></li>
       <li><a href="#zypper_ar">zypper_ar</a></li>
+      <li><a href="#zypper_version_cmp">zypper_version_cmp</a></li>
       <li><a href="#fully_patch_system">fully_patch_system</a></li>
       <li><a href="#ssh_fully_patch_system">ssh_fully_patch_system</a></li>
       <li><a href="#minimal_patch_system">minimal_patch_system</a></li>
@@ -96,10 +97,6 @@
       <li><a href="#permit_root_ssh_in_sol-permit_root_ssh_in_sol">permit_root_ssh_in_sol permit_root_ssh_in_sol();</a></li>
       <li><a href="#cleanup_disk_space-cleanup_disk_space">cleanup_disk_space cleanup_disk_space();</a></li>
       <li><a href="#package_upgrade_check-package_upgrade_check">package_upgrade_check package_upgrade_check();</a></li>
-      <li><a href="#validate_result-_validate_result">_validate_result _validate_result();</a></li>
-      <li><a href="#generate_results-generate_results">generate_results generate_results();</a></li>
-      <li><a href="#parse_test_results-parse_test_results">parse_test_results parse_test_results();</a></li>
-      <li><a href="#test_case-test_case-name-description-result">test_case test_case($name, $description, $result);</a></li>
       <li><a href="#remount_tmp_if_ro">remount_tmp_if_ro</a></li>
       <li><a href="#detect_bsc_1063638">detect_bsc_1063638</a></li>
       <li><a href="#script_start_io">script_start_io</a></li>
@@ -120,12 +117,17 @@
       <li><a href="#is_ipxe_with_disk_image">is_ipxe_with_disk_image</a></li>
       <li><a href="#is_reboot_needed">is_reboot_needed</a></li>
       <li><a href="#install_extra_packages">install_extra_packages</a></li>
+      <li><a href="#remove_installed_packages">remove_installed_packages</a></li>
       <li><a href="#render_autoinst_url">render_autoinst_url</a></li>
       <li><a href="#is_agama_guest">is_agama_guest</a></li>
       <li><a href="#upload_folders">upload_folders</a></li>
       <li><a href="#cmd_run">cmd_run</a></li>
       <li><a href="#parse_json">parse_json</a></li>
       <li><a href="#inspect_existing_issue">inspect_existing_issue</a></li>
+      <li><a href="#dump_tasktrace">dump_tasktrace</a></li>
+      <li><a href="#show_all_disks">show_all_disks</a></li>
+      <li><a href="#render_scc_url">render_scc_url</a></li>
+      <li><a href="#query_installed_packages">query_installed_packages</a></li>
     </ul>
   </li>
 </ul><h1>lib/utils.pm</h1>
@@ -303,6 +305,14 @@ remain: boolean
 
 <pre><code>zypper_ar(&#39;http://dist.nue.suse.com/ibs/QA:/Head/SLE-15-SP1&#39;, name =&gt; &#39;qa-head);
 zypper_ar(&#39;https://download.opensuse.org/repositories/devel:/kubic/openSUSE_Tumbleweed/devel:kubic.repo&#39;, no_gpg_check =&gt; 1, priority =&gt; 90);</code></pre>
+
+<h2 id="zypper_version_cmp">zypper_version_cmp</h2>
+
+<pre><code>zypper_version_cmp($ver1, $ver2);</code></pre>
+
+<p>Compare the versions supplied as arguments and tell whether version1 is older or newer than version2 or the two version strings match.</p>
+
+<p>The default output is in human-friendly form. If --terse global option is used, the result is an integer number, negative/positive if version1 is older/newer than version2, zero if they match.</p>
 
 <h2 id="fully_patch_system">fully_patch_system</h2>
 
@@ -606,9 +616,21 @@ zypper_ar(&#39;https://download.opensuse.org/repositories/devel:/kubic/openSUSE_
 
 <h2 id="script_retry">script_retry</h2>
 
-<pre><code>script_retry($cmd, [expect =&gt; $expect], [retry =&gt; $retry], [delay =&gt; $delay], [timeout =&gt; $timeout], [die =&gt; $die]);</code></pre>
+<pre><code>script_retry($cmd, [expect =&gt; $expect], [retry =&gt; $retry], [delay =&gt; $delay], [timeout =&gt; $timeout], [die =&gt; $die], [kill_timeout =&gt; $kill_timeout], [retry_grace =&gt; $retry_grace]);</code></pre>
 
-<p>Repeat a command until the expected result is found or the overall timeout is hit.</p>
+<p>Repeat a command until the expected result is found or the retries are exhausted.</p>
+
+<p>The command is run through <code>script_run</code> wrapped in <code>timeout -k</code>, so each attempt can end in one of two ways, both of which are retried:</p>
+
+<ul>
+
+<li><p>The command returns quickly with an exit code different from <code>$expect</code> (a genuine command failure). <code>script_retry</code> waits <code>$delay</code> seconds and tries again.</p>
+
+</li>
+<li><p>The command does not finish within <code>$timeout</code> seconds and is killed by <code>timeout</code>. In this case <code>script_run</code> returns <code>undef</code>; <code>script_retry</code> waits <code>$delay</code> seconds and tries again.</p>
+
+</li>
+</ul>
 
 <p><code>$expect</code> refers to the expected command exit code and defaults to <code>0</code>.</p>
 
@@ -620,7 +642,13 @@ zypper_ar(&#39;https://download.opensuse.org/repositories/devel:/kubic/openSUSE_
 
 <p>The command must return within <code>$timeout</code> seconds (default: 30).</p>
 
-<p>If the command doesn&#39;t return <code>$expect</code> after <code>$retry</code> retries, this function will die, if <code>$die</code> is set.</p>
+<p><code>$kill_timeout</code> is the number of seconds passed to <code>timeout -k</code> (SIGKILL grace period after SIGTERM). Defaults to <code>5</code>.</p>
+
+<p><code>$retry_grace</code> is the number of extra seconds <code>script_run</code> waits beyond <code>$timeout</code> to allow the shell to report the exit code after SIGKILL. Defaults to <code>10</code>.</p>
+
+<p>If the command doesn&#39;t return <code>$expect</code> after <code>$retry</code> retries, this function will die. This default behavior can be disabled by setting <code>$die</code> to <code>0</code>.</p>
+
+<p>Returns the exit code of the last executed command.</p>
 
 <p>Example:</p>
 
@@ -631,8 +659,6 @@ zypper_ar(&#39;https://download.opensuse.org/repositories/devel:/kubic/openSUSE_
 <pre><code>script_output_retry($cmd, [retry =&gt; $retry], [delay =&gt; $delay], [timeout =&gt; $timeout], [die =&gt; $die]);</code></pre>
 
 <p>Repeat command until expected result or timeout. Return the output of the command on success.</p>
-
-<p><code>$expect</code> refers to the expected command exit code and defaults to <code>0</code>.</p>
 
 <p><code>$retry</code> refers to the number of retries and defaults to <code>10</code>.</p>
 
@@ -752,24 +778,6 @@ zypper_ar(&#39;https://download.opensuse.org/repositories/devel:/kubic/openSUSE_
 
 <p>Sample config of parameter of the function below: my $pkg_list = {ibmtss =&gt; &#39;1.6.0&#39;}; here, &#39;libmtss&#39; is the package name, and &#39;1.6.0&#39; is target version which needs to be upgrated to</p>
 
-<h2 id="validate_result-_validate_result">_validate_result _validate_result();</h2>
-
-<p>This is a private method which is used by <code>generate_results</code> to convert the results in a string representation. At the moment the status that are supported are {PASS,FAIL}.</p>
-
-<p>The method takes as the only argument the return of a perl statement or subroutine.</p>
-
-<h2 id="generate_results-generate_results">generate_results generate_results();</h2>
-
-<p>This function is used to construct a hash suitable for representation in junit xml format.</p>
-
-<h2 id="parse_test_results-parse_test_results">parse_test_results parse_test_results();</h2>
-
-<p>Takes <code>test</code> as an argument. <code>test</code> is an array of hashes which contain the test results. They usually are generated by <code>generate_results</code>. Those are parsed and create the junit xml representation.</p>
-
-<h2 id="test_case-test_case-name-description-result">test_case test_case($name, $description, $result);</h2>
-
-<p><code>test_case</code> can produce a data_structure which <code>parse_test_results</code> can utilize. Using <code>test_case</code> in an OpenQA module you are able to /name/ and describe the whole test as subtasks, in a XUnit format.</p>
-
 <h2 id="remount_tmp_if_ro">remount_tmp_if_ro</h2>
 
 <pre><code>remount_tmp_if_ro();</code></pre>
@@ -846,7 +854,7 @@ script_finish_io(exitcode =&gt; [12]);</code></pre>
 
 <pre><code>remove_efiboot_entry(boot_entry =&gt; &#39;entry&#39;);</code></pre>
 
-<p>Remove provided efiboot entry name by its corresponding boot number.</p>
+<p>Remove provided efiboot entry name by its corresponding boot number. All entries with this name will be removed.</p>
 
 <h2 id="empty_usb_disks">empty_usb_disks</h2>
 
@@ -897,6 +905,12 @@ script_finish_io(exitcode =&gt; [12]);</code></pre>
 
 <p>Install extra packages that are only available in extra repositories. User may need to install some useful utilities from other repositories to facilitate test run. At the same time, it also needs to ensure such operations will not alter existing system. Althought user should not be prevented from installing legitimate tools and utilities, it is expected that use of additional packages should be limited to the minimum and their impact should be paid attention to. User can specify required repositories and pacakges via arguments, repos and packages or settings INSTALL_OTHER_REPOS and INSTALL_OTHER_PACKAGES.</p>
 
+<h2 id="remove_installed_packages">remove_installed_packages</h2>
+
+<pre><code>remove_installed_packages(packages =&gt; &#39;packages&#39;);</code></pre>
+
+<p>Remove installed packages on demand. User may need to remove some packages for different purposes, for example, restoring environment or unsupported scenario. User can specify pacakges to be removed via named argument packages which support multiple packages separated by comma.</p>
+
 <h2 id="render_autoinst_url">render_autoinst_url</h2>
 
 <pre><code>render_autoinst_url(url =&gt; &#39;openQA url&#39;);</code></pre>
@@ -931,12 +945,33 @@ script_finish_io(exitcode =&gt; [12]);</code></pre>
 <h2 id="inspect_existing_issue">inspect_existing_issue</h2>
 
 <pre><code>inspect_existing_issue(issuefile =&gt; &#39;relative path of json files to data folder,
-    localfile =&gt; &#39;absolute path of downloaded local files, issue =&gt; &#39;issues to
-    be inspected separated by double hash ##&#39;, distri =&gt; &#39;comma separated issue
-    distri&#39;, version =&gt; &#39;comma separated issue version&#39;, mode =&gt; &#39;comma separted
-    issue mode&#39;)</code></pre>
+    issue =&gt; &#39;issues to be inspected separated by double hash ##&#39;, distri =&gt; 
+    &#39;comma separated issue distri&#39;, version =&gt; &#39;comma separated issue version&#39;,
+    mode =&gt; &#39;comma separted issue mode&#39;)</code></pre>
 
-<p>Inspect whether concerned issues are bug, feature or can be ignore. Only record bug as soft failure. Argument issuefile can take mulitple json files separated by comma which are used as reference to compare, localfile can take multiple local files separated by comma which are corresponding downloaded and stored files from issuefile, issue takes issues to be inspected separated by double hash ##. User can also use setting JSON_REFERRAL_FILE to pass in comma separated json file path. Settings ISSUE_DISTRI, ISSUE_VERSION and ISSUE_MODE can also be used to specify the real distri, version and mode with which inspected issue is associated, they are separated by comma if multiple values are provided, for example, ISSUE_MODE= (&#39;transactional&#39;, &#39;traditional&#39;). Key &#39;modes&#39; is not mandatory in reference file data/virt_autotest/existing_issues_referral.json, if it does not exist or empty, any mode is matched. User can also pass in by using arguments distri, version and mode. Generally speaking, first find a distri match in all products of an issue by iteraing disris in ISSUE_DISTRI, second find a version match in all versions of a product by iterating versions in ISSUE_VERSION if there is a distri match( namley @existing_issue_version is not empty), at the last find a mode match in all modes of an issue by iteraing modes in ISSUE_MODE(empty @existing_issue_mode means any mode will be matched). There will be a final successful match if issue matches description, distri/version and mode all matched.</p>
+<p>Inspect whether concerned issues are bug, feature or can be ignore. Only record bug as soft failure. Argument issuefile can take mulitple json files separated by comma which are used as reference to compare, issue takes issues to be inspected separated by double hash ##. User can also use setting JSON_REFERRAL_FILE to pass in comma separated json file path. Settings ISSUE_DISTRI, ISSUE_VERSION and ISSUE_MODE can also be used to specify the real distri, version and mode with which inspected issue is associated, they are separated by comma if multiple values are provided, for example, ISSUE_MODE=(&#39;transactional&#39;, &#39;traditional&#39;). Key &#39;modes&#39; is not mandatory in reference file data/virt_autotest/existing_issues_referral.json, if it does not exist or empty, any mode is matched. User can also pass in by using arguments distri, version and mode. Generally speaking, first find a distri match in all products of an issue by iteraing disris in ISSUE_DISTRI, second find a version match in all versions of a product by iterating versions in ISSUE_VERSION if there is a distri match(namley @existing_issue_version is not empty), at the last find a mode match in all modes of an issue by iteraing modes in ISSUE_MODE (empty @existing_issue_mode means any mode will be matched). There will be a final successful match if issue matches description, distri/version and mode all matched.</p>
+
+<h2 id="dump_tasktrace">dump_tasktrace</h2>
+
+<p>dump_tasktrace triggers SysRq key combinations to:</p>
+
+<p>- Show a stack backtrace for all active CPUs. - Dump a list of current tasks and their information to your console. - Dump tasks that are in uninterruptible (blocked) state.</p>
+
+<p>See https://docs.kernel.org/admin-guide/sysrq.html</p>
+
+<h2 id="show_all_disks">show_all_disks</h2>
+
+<p>Output information about all disks on system to facilitate convenient and quick information lookup on the fly without manual intervention.</p>
+
+<h2 id="render_scc_url">render_scc_url</h2>
+
+<p>The SCC_URL is always generated from BUILD which might raise issue for image testing which has different BUILD number but still uses the same software repositories used by media from fresh installation. So registration url for image testing needs to be tweaked a bit to also use the same BUILD number as fresh installation, for example, starting from SLES 16.1 which provides transactional pre-built images, these images have different BUILD number but still use SLES 16.1 repositories build of which are reflected in BUILD_SLE.</p>
+
+<h2 id="query_installed_packages">query_installed_packages</h2>
+
+<pre><code>query_installed_packages(packages =&gt; &#39;package1,package2,package3&#39;)</code></pre>
+
+<p>Query whether provided packages are all installed by using &#39;rpm -q&#39;. Return 1 if all packages are already installed or 0 if any of them is not installed. The only argument is packages which accepts list of package names separated by comma.</p>
 
 
 </body>

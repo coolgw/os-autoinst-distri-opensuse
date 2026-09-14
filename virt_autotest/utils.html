@@ -32,6 +32,9 @@
       <li><a href="#check_kvm_modules">check_kvm_modules</a></li>
       <li><a href="#download_installation_iso">download_installation_iso</a></li>
       <li><a href="#install_product_software">install_product_software</a></li>
+      <li><a href="#collect_guests_supportconfig_and_logs">collect_guests_supportconfig_and_logs</a></li>
+      <li><a href="#reset_network_config">reset_network_config</a></li>
+      <li><a href="#is_transactional_guest">is_transactional_guest</a></li>
     </ul>
   </li>
 </ul><h1>lib/virt_autotest/utils.pm</h1>
@@ -113,7 +116,7 @@
 
 <h2 id="select_backend_console">select_backend_console</h2>
 
-<p>Select corresponding ipmi or qemu backend console &#39;root-ssh&#39; or &#39;root-console&#39;. If argument init is set, select ipmi backend &#39;sol&#39; console. User can also set arguments console or wait to select cusotmized console in desired behavior.</p>
+<p>Select corresponding ipmi, qemu or pvm_hmc backend console, namely &#39;root-ssh&#39; or &#39;root-console&#39;. If argument init is set, select &#39;sol&#39; console for ipmi backend, or powerhmc-ssh for pvm_hmc backend because test run is in initialization or the very beginning phase, for example, pxe boot, host installation or startup. User can also set desired console or choose whether to wait for the selected console. Argument reset_times specifies the number of times reset_consoles to be done.</p>
 
 <h2 id="double_check_xen_role">double_check_xen_role</h2>
 
@@ -137,6 +140,24 @@
     ,pattern2&#39;)</code></pre>
 
 <p>Install desired packages and patterns from existing product repositories if settings INSTALL_PRODUCT_PACKAGES and INSTALL_PRODUCT_PATTERNS are specified with packages and patterns separated by comma. User can also specify desired pacakges and patterns by passing in arguments package and pattern.</p>
+
+<h2 id="collect_guests_supportconfig_and_logs">collect_guests_supportconfig_and_logs</h2>
+
+<pre><code>collect_guests_supportconfig_and_logs();</code></pre>
+
+<p>Runs supportconfig and collects compressed /var/log* from all guests</p>
+
+<h2 id="reset_network_config">reset_network_config</h2>
+
+<pre><code>reset_network_config(config =&gt; absolute path to config file);</code></pre>
+
+<p>Reset network config, for example, restore auto dns policy to enable automatic dns migration to higher version</p>
+
+<h2 id="is_transactional_guest">is_transactional_guest</h2>
+
+<pre><code>is_transactional_guest(address =&gt; ip or domain name or fqdn);</code></pre>
+
+<p>Check whether guest is in immutable mode by leveraging the two most reliable methods , namely transactional-update shell exists or root partition is mounted read only if its domain name does not have &#39;immutable&#39; or &#39;transactional&#39;. Need ssh connection to perform the check, so argument address is needed which can be guest ip address, domain name or FQDN as long as it can be used for ssh connection.</p>
 
 
 </body>
