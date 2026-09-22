@@ -76,6 +76,7 @@ sub run {
     return unless (get_var('LTP_COMMAND_FILE'));
 
     check_kernel_taint($self, 1);
+        record_info('lru_gen', script_output('cat /sys/kernel/mm/lru_gen/enabled'));
     prepare_ltp_env;
     init_ltp_tests($cmd_file);
 
