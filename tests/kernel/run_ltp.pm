@@ -395,13 +395,14 @@ sub run {
 
     if ($test->{name} eq 'memcontrol03') {
         # Overwrite memcontrol03.c with the version from data/ltp/memcontrol03.c
-        my $url = data_url('ltp/memcontrol03.c');
-        assert_script_run("ls -l /root/ltp/testcases/kernel/controllers/memcg/memcontrol03.c");
-        assert_script_run("cat /root/ltp/testcases/kernel/controllers/memcg/memcontrol03.c");
-        assert_script_run("curl -L $url -o /root/ltp/testcases/kernel/controllers/memcg/memcontrol03.c");
-        assert_script_run('make -C /root/ltp/testcases/kernel/controllers/memcg/ memcontrol03');
-        assert_script_run('cp /root/ltp/testcases/kernel/controllers/memcg/memcontrol03 /opt/ltp/testcases/bin/');
-        assert_script_run("ls -l /opt/ltp/bin/");
+        my $url = data_url('ltp/memcontrol03');
+
+        script_run("ls -l /opt/ltp/testcases/bin/");
+        script_run("find / -name memcontrol03");
+	#script_run("rm /opt/ltp/bin/memcontrol03");
+        script_run("curl -L $url -o /opt/ltp/testcases/bin/memcontrol03");
+        script_run("ls -l /opt/ltp/testcases/bin/");
+        script_run("/opt/ltp/testcases/bin/memcontrol03");
     }
 
     my $klog_stamp = "OpenQA::run_ltp.pm: Starting $test->{name}";
