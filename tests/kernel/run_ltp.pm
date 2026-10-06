@@ -386,12 +386,34 @@ sub run {
         $test->{command} = "strace -o $strace_log -f $test->{command}";
     }
 
+    if ($test->{name} =~ /^memcontrol0[34]/) {
+        if (script_run('[ -f /sys/fs/cgroup/cgroup.controllers ]') == 0) {
+            assert_script_run("echo '+memory' > /sys/fs/cgroup/cgroup.subtree_control && mkdir -p /sys/fs/cgroup/ltp && echo 50M > /sys/fs/cgroup/ltp/memory.min");
+        }
+    }
+
     $env{retval} = 'undefined';
     $self->{ltp_env} = \%env;
     $self->{ltp_tinfo} = $tinfo;
 
     my $fin_msg = "### TEST $test->{name} COMPLETE >>> ";
     my $cmd_text = qq($test->{command}; echo "$fin_msg\$?.");
+
+    if ($test->{name} eq 'memcontrol04') {
+        # Overwrite memcontrol03.c with the version from data/ltp/memcontrol03.c
+        my $url = data_url('ltp/memcontrol04');
+
+        script_run("ls -l /opt/ltp/testcases/bin/ | grep mem");
+	#script_run("rm /opt/ltp/bin/memcontrol03");
+        script_run("curl -L $url -o /opt/ltp/testcases/bin/memcontrol04");
+	sleep(5);
+        script_run("curl -L $url -o /opt/ltp/testcases/bin/memcontrol04");
+	sleep(10);
+	script_run("file /opt/ltp/testcases/bin/memcontrol04");
+	script_run("cat /opt/ltp/testcases/bin/memcontrol04");
+        script_run("ls -l /opt/ltp/testcases/bin/ | grep mem");
+        script_run("/opt/ltp/testcases/bin/memcontrol04");
+    }
 
     my $klog_stamp = "OpenQA::run_ltp.pm: Starting $test->{name}";
     my $start_time = thetime();
@@ -424,6 +446,10 @@ sub run {
     my ($timed_out, $result_export) = $self->record_ltp_result($runfile, $test, $test_log, $fin_msg, thetime() - $start_time, $is_posix);
     $self->{timed_out} = $timed_out;
 
+    if ($test->{name} =~ /^memcontrol0[34]/) {
+        script_run("[ -f /sys/fs/cgroup/ltp/memory.min ] && echo 0 > /sys/fs/cgroup/ltp/memory.min; [ -d /sys/fs/cgroup/ltp ] && find /sys/fs/cgroup/ltp -depth -type d -exec rmdir {} + 2>/dev/null");
+    }
+
     if ($test_log =~ qr/$fin_msg(\d+)\.$/) {
         $env{retval} = $1;
         $self->upload_oprofile() if defined($self->{oprofile_pid});
@@ -448,6 +474,10 @@ sub run {
 # Only propogate death don't create it from failure [2]
 sub run_post_fail {
     my ($self, $msg) = @_;
+
+    if ($self->{ltp_tinfo} && $self->{ltp_tinfo}->test->{name} =~ /^memcontrol0[34]/) {
+        script_run("[ -f /sys/fs/cgroup/ltp/memory.min ] && echo 0 > /sys/fs/cgroup/ltp/memory.min; [ -d /sys/fs/cgroup/ltp ] && find /sys/fs/cgroup/ltp -depth -type d -exec rmdir {} + 2>/dev/null");
+    }
 
     $self->upload_oprofile() if defined($self->{oprofile_pid});
     $self->upload_tcpdump() if defined($self->{tcpdump_pid});
