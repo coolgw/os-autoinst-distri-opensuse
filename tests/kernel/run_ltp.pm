@@ -381,6 +381,37 @@ sub upload_oprofile {
     select_console($old_console) if defined($old_console);
 }
 
+
+sub debug_irqbalance01 {
+    my ($self) = @_;
+
+    record_info('IRQBALANCE DEBUG', 'Running comprehensive irqbalance diagnostic');
+    my $url = data_url('ltp/irqbalance_debug.sh');
+    my $download_ok = (script_run("curl -sS -o /tmp/irqbalance_debug.sh $url && chmod +x /tmp/irqbalance_debug.sh", timeout => 60) == 0);
+    if (!$download_ok) {
+        script_run(q{cat << 'EOS' > /tmp/irqbalance_debug.sh
+#!/bin/bash
+exec > /tmp/irqbalance_debug.txt 2>&1
+echo "=== IRQBALANCE DIAGNOSTIC (FALLBACK) ==="
+systemctl status irqbalance.service --no-pager -l || true
+journalctl -u irqbalance.service --no-pager -n 50 || true
+cat /proc/interrupts
+for i in /proc/irq/[0-9]*; do
+    [ -d "$i" ] || continue
+    echo "$(basename $i): $(ls -l $i/smp_affinity 2>/dev/null | awk '{print $1}') $(cat $i/smp_affinity 2>/dev/null)"
+done
+irqbalance --oneshot --debug 2>&1 || true
+/opt/ltp/testcases/bin/irqbalance01 || irqbalance01 || true
+EOS
+chmod +x /tmp/irqbalance_debug.sh
+});
+    }
+    script_run('/tmp/irqbalance_debug.sh', timeout => 360);
+    upload_logs('/tmp/irqbalance_debug.txt', failok => 1);
+    my $summary = script_output('tail -n 45 /tmp/irqbalance_debug.txt', proceed_on_failure => 1);
+    record_info('IRQBALANCE RETEST', $summary);
+}
+
 sub pre_run_hook {
     my ($self) = @_;
 
@@ -428,6 +459,12 @@ sub run {
         $self->{oprofile_pid} = background_script_run('operf -ls -d /tmp/ltp_oprofile &>/tmp/ltp_oprofile.txt');
     }
 
+    if ($test->{name} eq 'irqbalance01') {
+        record_info('IRQBALANCE PRE', 'Pre-test status of irqbalance and interrupts');
+        script_run('systemctl status irqbalance.service --no-pager -l || true');
+        script_run('cat /proc/interrupts');
+    }
+
     if (is_serial_terminal) {
         script_run("echo '$klog_stamp' > /dev/kmsg");
         # SLE11-SP4 doesn't support ignore_loglevel, due that stamp is not printed in console
@@ -460,6 +497,9 @@ sub run {
 
     upload_logs($strace_log) if (check_var_array('LTP_DEBUG', 'strace'));
     script_run('vmstat -w');
+    if ($test->{name} eq 'irqbalance01') {
+        $self->debug_irqbalance01();
+    }
 
     # reboot unless TCONF or last test
     $self->do_reboot if (get_var('LTP_REBOOT_AFTER_TEST') && !$test->{last} && $env{retval} != 32);
